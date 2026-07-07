@@ -1,0 +1,9 @@
+A fully open-source experimental Chromium-based web browser for Android with extensions support.
+
+- Installing Extensions: Navigate to Chrome Web Store, enable "Desktop site", and then proceed as normal. Manifest V2 (MV2) extensions are supported. You can install uBlock Origin from Chrome Web Store.
+
+- Using Extensions: To use an extension's popup, open extensions menu, select the menu button next to the extension, and choose "Pin to toolbar" from the list. You can then open the popup using the extension's dedicated toolbar icon. To run an extension in Incognito (OTR) mode, go to "Manage extensions", find the extension you want to use in Incognito mode, select "Details", and turn on "Allow in Incognito".
+
+- Debug URLs: To view and access them, use "chrome://chrome-urls".
+
+- WebRTC IP Policy: Available under "Privacy and security" in Settings. If you experience issues with WebRTC due to IPs being shielded by default, you may try to change it to Default public interface only, or Default.

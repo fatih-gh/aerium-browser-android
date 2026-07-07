@@ -1,0 +1,1 @@
+Private and secure open-source Android browser with support for extensions
