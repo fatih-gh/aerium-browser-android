@@ -4,9 +4,7 @@
   </defs>
   <g transform="translate(256 256) scale(1) translate(-256 -256)">
     <g clip-path="url(#disc)">
-      <rect x="-500" y="-500" width="1512" height="1512" fill="#50507a"/>
-      <polygon points="-554,853 1178,-147 1600,1600 -554,1600" fill="#9393bf"/>
-      <polygon points="1066,-341 -666,659 -554,853 1178,-147" fill="#1c1c31"/>
+      <rect x="-500" y="-500" width="1512" height="1512" fill="#1c1c31"/>
     </g>
     <g id="motif">
       <ellipse cx="256" cy="256" rx="156" ry="78" fill="none" stroke="#50507a" stroke-width="12" transform="rotate(-30 256 256)"/>
