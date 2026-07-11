@@ -1,8 +1,9 @@
 #!/bin/bash
 
-mkdir -p chrome/android/java/res_helium_base
-cp $SCRIPT_DIR/res/drawable/themed_app_icon.xml chrome/android/java/res_helium_base/drawable/themed_app_icon.xml
-for icon in $(find chrome/android/java/res_helium_base -type f -name '*.png'); do convert $icon -fill navy -tint 36 $icon && $SCRIPT_DIR/res/icon.sh $icon; done
+mkdir -p chrome/android/java/res_aerium_base/drawable chrome/android/java/res_aerium_base/mipmap-nodpi
+cp $SCRIPT_DIR/res/drawable/themed_app_icon.xml chrome/android/java/res_aerium_base/drawable/themed_app_icon.xml
+cp $SCRIPT_DIR/res/layered_app_icon_foreground.xml chrome/android/java/res_aerium_base/mipmap-nodpi/layered_app_icon_foreground.xml
+for icon in $(find chrome/android/java/res_aerium_base -type f -name '*.png'); do $SCRIPT_DIR/res/icons.sh $icon; done
 # sed -i 's|Google LLC|jqssun, Google LLC|' chrome/browser/ui/android/strings/android_chrome_strings.grd
 
 sed -i '/feature_overrides.EnableFeature(::features::kSkipVulkanBlocklist);/d' chrome/browser/chrome_browser_field_trials.cc

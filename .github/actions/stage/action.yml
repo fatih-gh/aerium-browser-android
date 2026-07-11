@@ -1,0 +1,104 @@
+name: 'Stage'
+description: 'One resumable build stage: restore tree, build for a time slice, save tree or publish the APK'
+inputs:
+  finished:
+    description: 'true if a previous stage already finished the build'
+    required: true
+  from_artifact:
+    description: 'true to restore the build tree from the previous stage artifact'
+    required: true
+outputs:
+  finished:
+    description: 'true once the signed APK has been produced'
+    value: ${{ steps.result.outputs.finished }}
+runs:
+  using: 'composite'
+  steps:
+    - name: Maximize build space
+      if: inputs.finished != 'true'
+      uses: easimon/maximize-build-space@v10
+      with:
+        root-reserve-mb: '8192'
+        temp-reserve-mb: '2048'
+        swap-size-mb: '4096'
+        remove-dotnet: 'true'
+        remove-android: 'true'
+        remove-haskell: 'true'
+        remove-codeql: 'true'
+        remove-docker-images: 'true'
+        build-mount-path: '${{ github.workspace }}/chromium'
+
+    - name: Restore build tree
+      if: inputs.finished != 'true' && inputs.from_artifact == 'true'
+      uses: actions/download-artifact@v4
+      with:
+        name: build-artifact-android
+        path: ${{ github.workspace }}/chromium
+
+    - name: Unpack build tree
+      if: inputs.finished != 'true' && inputs.from_artifact == 'true'
+      shell: bash
+      run: |
+        cd "$GITHUB_WORKSPACE"
+        tar -x -I 'zstd -T0' -f chromium/artifacts.tar.zst
+        rm -f chromium/artifacts.tar.zst
+        df -h /
+
+    - name: Build
+      if: inputs.finished != 'true'
+      shell: bash
+      run: |
+        cd "$GITHUB_WORKSPACE"
+        chmod +x *.sh res/*.sh
+        ./build.sh --ci
+        df -h /
+
+    - name: Pack build tree
+      id: pack
+      if: inputs.finished != 'true'
+      shell: bash
+      run: |
+        cd "$GITHUB_WORKSPACE"
+        if [ -f release/finished.marker ]; then
+          echo "packed=finished" >> "$GITHUB_OUTPUT"
+        else
+          EXTRA=""
+          for f in chromium/.gclient_entries chromium/.gclient_previous_sync_commits; do
+            [ -f "$f" ] && EXTRA="$EXTRA $f"
+          done
+          tar -c -I 'zstd -T0 -3' -f chromium/artifacts.tar.zst \
+            --exclude='chromium/artifacts.tar.zst' \
+            chromium/src chromium/.gclient $EXTRA
+          ls -la chromium/artifacts.tar.zst
+          echo "packed=intermediate" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Upload build tree
+      if: inputs.finished != 'true' && steps.pack.outputs.packed == 'intermediate'
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-artifact-android
+        path: ${{ github.workspace }}/chromium/artifacts.tar.zst
+        retention-days: 4
+        compression-level: 0
+        overwrite: true
+
+    - name: Upload final APK
+      if: inputs.finished != 'true' && steps.pack.outputs.packed == 'finished'
+      uses: actions/upload-artifact@v4
+      with:
+        name: aerium-android
+        path: ${{ github.workspace }}/release/
+        retention-days: 30
+        compression-level: 0
+        overwrite: true
+
+    - name: Set result
+      id: result
+      shell: bash
+      run: |
+        if [ "${{ inputs.finished }}" = "true" ] || [ "${{ steps.pack.outputs.packed }}" = "finished" ]; then
+          echo "finished=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "finished=false" >> "$GITHUB_OUTPUT"
+        fi

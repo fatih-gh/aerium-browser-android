@@ -1,4 +1,7 @@
-# Helium Browser for Android
+# Aerium Browser for Android
+
+> Fork of [jqssun/android-helium-browser](https://github.com/jqssun/android-helium-browser) rebranded as **Aerium**: arm64-only, no AAB, staged 16-job GitHub Actions pipeline for free ubuntu-latest runners (time-boxed autoninja + artifact handoff). Secrets required: LOCAL_TEST_JKS, STORE_TEST_JKS.
+
 
 [![GitHub](https://img.shields.io/github/downloads/jqssun/android-helium-browser/total?label=GitHub&logo=GitHub)](https://github.com/jqssun/android-helium-browser/releases)
 [![license](https://img.shields.io/badge/License-GPLv2-blue.svg)](https://github.com/jqssun/android-helium-browser/blob/main/LICENSE)

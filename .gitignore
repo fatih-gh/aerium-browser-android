@@ -1,7 +1,8 @@
 .DS_Store
 
-chromium/
 depot_tools/
+chromium/
+release/
 keys/
 
 *.aab
