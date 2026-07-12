@@ -91,6 +91,7 @@ EOF
     ./build/install-build-deps.sh --no-prompt
 
     source $SCRIPT_DIR/patch.sh
+    source $SCRIPT_DIR/theme.sh
 
     # Some Vanadium patches modify .grd string files without updating the
     # checked-in .gritdeps snapshots (e.g. 0272 touches
