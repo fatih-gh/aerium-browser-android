@@ -3,10 +3,16 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="90dp"
     android:height="90dp"
-    android:viewportWidth="90"
-    android:viewportHeight="90">
-    <path
-        android:pathData="M45,18A27,27 0 1,1 45,72A27,27 0 1,1 45,18Z M45,38.5A6.5,6.5 0 1,0 45,51.5A6.5,6.5 0 1,0 45,38.5Z"
-        android:fillColor="#000000"
-        android:fillType="evenOdd"/>
+    android:viewportWidth="512"
+    android:viewportHeight="512">
+  <group
+      android:scaleX="0.62"
+      android:scaleY="0.62"
+      android:translateX="97.28"
+      android:translateY="97.28">
+    <path android:fillColor="#000000" android:pathData="M 330 384.17 L 149.1 488.61 A 256 256 0 0 1 108 47.12 L 108 256 A 148 148 0 0 0 330 384.17 Z"/>
+    <path android:fillColor="#000000" android:pathData="M 108 256 L 108 47.12 A 256 256 0 0 1 510.9 232.27 L 330 127.83 A 148 148 0 0 0 108 256 Z"/>
+    <path android:fillColor="#000000" android:pathData="M 330 127.83 L 510.9 232.27 A 256 256 0 0 1 149.1 488.61 L 330 384.17 A 148 148 0 0 0 330 127.83 Z"/>
+    <path android:fillColor="#000000" android:pathData="M 152.00 256 A 104 104 0 1 0 360.00 256 A 104 104 0 1 0 152.00 256 Z"/>
+  </group>
 </vector>
