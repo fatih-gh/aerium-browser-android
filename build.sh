@@ -23,6 +23,15 @@ export CHROMIUM_SOURCE=https://chromium.googlesource.com/chromium/src.git
 export DEBIAN_FRONTEND=noninteractive
 echo "[aerium] chromium version: $VERSION  ci: $MODE_CI"
 
+# Keep the big tool caches on the large build mount (chromium/) instead of the
+# small root filesystem: vpython venvs alone are multiple GB and overflow the
+# CI runner's root disk otherwise. Not part of the stage artifact; they are
+# recreated cheaply on each stage.
+mkdir -p chromium/.vpython-root chromium/.cipd-cache chromium/.tmp
+export VPYTHON_VIRTUALENV_ROOT="$SCRIPT_DIR/chromium/.vpython-root"
+export CIPD_CACHE_DIR="$SCRIPT_DIR/chromium/.cipd-cache"
+export TMPDIR="$SCRIPT_DIR/chromium/.tmp"
+
 # --- system dependencies: needed on every (fresh) CI runner -----------------
 sudo apt-get update
 sudo apt-get install -y sudo lsb-release file nano git curl python3 python3-pillow imagemagick librsvg2-bin zstd
