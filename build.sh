@@ -92,6 +92,24 @@ EOF
 
     source $SCRIPT_DIR/patch.sh
 
+    # Some Vanadium patches modify .grd string files without updating the
+    # checked-in .gritdeps snapshots (e.g. 0272 touches
+    # components_strings.grd), which fails the *_check_gritdeps build
+    # targets. Regenerate every snapshot with the official command.
+    find . -name '*.grd.gritdeps' -not -path './out/*' | while read -r deps; do
+        grd="${deps%.gritdeps}"
+        [ -f "$grd" ] || continue
+        if python3 tools/grit/grit_info.py --all-inputs "$grd" > "$deps.new" 2>/dev/null; then
+            if ! cmp -s "$deps" "$deps.new"; then
+                echo "[aerium] regenerated $deps"
+            fi
+            mv "$deps.new" "$deps"
+        else
+            echo "[aerium] warning: could not regenerate $deps; keeping original"
+            rm -f "$deps.new"
+        fi
+    done
+
     cp $SCRIPT_DIR/args.gn out/Default/args.gn
     gn gen out/Default
     cd $SCRIPT_DIR
