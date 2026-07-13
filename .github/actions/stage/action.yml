@@ -19,9 +19,12 @@ runs:
       if: inputs.finished != 'true'
       uses: easimon/maximize-build-space@v10
       with:
-        root-reserve-mb: '8192'
+        # The swap file is carved out of the root reserve, so the reserve
+        # must cover swap + depot_tools + apt + misc root writes. Runners
+        # have ~145G root disks, so a generous reserve is affordable.
+        root-reserve-mb: '20480'
         temp-reserve-mb: '2048'
-        swap-size-mb: '8192'
+        swap-size-mb: '12288'
         remove-dotnet: 'true'
         remove-android: 'true'
         remove-haskell: 'true'
@@ -58,10 +61,12 @@ runs:
       run: |
         cd "$GITHUB_WORKSPACE"
         chmod +x *.sh res/*.sh
+        free -h || true
+        df -h || true
         set +e
         ./build.sh --ci
         echo "code=$?" >> "$GITHUB_OUTPUT"
-        df -h /
+        df -h || true
 
     - name: Pack build tree
       id: pack
