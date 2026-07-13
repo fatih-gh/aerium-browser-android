@@ -12,6 +12,13 @@ grep -rl --include='*.grd' --include='*.grdp' --include='*.xtb' 'Chromium' \
     sed -i 's/The Chromium Authors/Dioide/g; s/Chromium/Aerium/g' "$f"
 done
 
+# --- Use the Android Autofill framework by default so third-party password
+# managers (Bitwarden etc.) fill web forms natively instead of relying on
+# flaky accessibility-based compatibility mode. User-changeable in
+# Settings -> Autofill services.
+sed -i 's/registry->RegisterBooleanPref(kAutofillUsingPlatformAutofill, false);/registry->RegisterBooleanPref(kAutofillUsingPlatformAutofill, true);/' \
+    components/autofill/core/common/autofill_prefs.cc
+
 # --- Default to dark theme (user can still change it in appearance settings)
 sed -i 's/return ThemeType.SYSTEM_DEFAULT;/return ThemeType.DARK;/' \
     chrome/browser/ui/android/night_mode/java/src/org/chromium/chrome/browser/night_mode/NightModeUtils.java
