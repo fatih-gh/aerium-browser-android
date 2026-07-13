@@ -2,6 +2,12 @@ name: Build
 
 on:
   workflow_dispatch:
+    inputs:
+      fresh:
+        description: 'Ignore the saved build tree and start from scratch'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: write
@@ -25,7 +31,7 @@ jobs:
         uses: ./.github/actions/stage
         with:
           finished: 'false'
-          from_artifact: 'false'
+          from_artifact: ${{ inputs.fresh == true && 'never' || 'auto' }}
         env:
           LOCAL_TEST_JKS: ${{ secrets.LOCAL_TEST_JKS }}
           STORE_TEST_JKS: ${{ secrets.STORE_TEST_JKS }}
@@ -45,7 +51,7 @@ jobs:
         uses: ./.github/actions/stage
         with:
           finished: ${{ needs.build-1.outputs.finished }}
-          from_artifact: 'true'
+          from_artifact: 'auto'
         env:
           LOCAL_TEST_JKS: ${{ secrets.LOCAL_TEST_JKS }}
           STORE_TEST_JKS: ${{ secrets.STORE_TEST_JKS }}
@@ -65,7 +71,7 @@ jobs:
         uses: ./.github/actions/stage
         with:
           finished: ${{ needs.build-2.outputs.finished }}
-          from_artifact: 'true'
+          from_artifact: 'auto'
         env:
           LOCAL_TEST_JKS: ${{ secrets.LOCAL_TEST_JKS }}
           STORE_TEST_JKS: ${{ secrets.STORE_TEST_JKS }}
@@ -85,7 +91,7 @@ jobs:
         uses: ./.github/actions/stage
         with:
           finished: ${{ needs.build-3.outputs.finished }}
-          from_artifact: 'true'
+          from_artifact: 'auto'
         env:
           LOCAL_TEST_JKS: ${{ secrets.LOCAL_TEST_JKS }}
           STORE_TEST_JKS: ${{ secrets.STORE_TEST_JKS }}
@@ -105,7 +111,7 @@ jobs:
         uses: ./.github/actions/stage
         with:
           finished: ${{ needs.build-4.outputs.finished }}
-          from_artifact: 'true'
+          from_artifact: 'auto'
         env:
           LOCAL_TEST_JKS: ${{ secrets.LOCAL_TEST_JKS }}
           STORE_TEST_JKS: ${{ secrets.STORE_TEST_JKS }}
@@ -125,7 +131,7 @@ jobs:
         uses: ./.github/actions/stage
         with:
           finished: ${{ needs.build-5.outputs.finished }}
-          from_artifact: 'true'
+          from_artifact: 'auto'
         env:
           LOCAL_TEST_JKS: ${{ secrets.LOCAL_TEST_JKS }}
           STORE_TEST_JKS: ${{ secrets.STORE_TEST_JKS }}
@@ -145,7 +151,7 @@ jobs:
         uses: ./.github/actions/stage
         with:
           finished: ${{ needs.build-6.outputs.finished }}
-          from_artifact: 'true'
+          from_artifact: 'auto'
         env:
           LOCAL_TEST_JKS: ${{ secrets.LOCAL_TEST_JKS }}
           STORE_TEST_JKS: ${{ secrets.STORE_TEST_JKS }}
@@ -165,7 +171,7 @@ jobs:
         uses: ./.github/actions/stage
         with:
           finished: ${{ needs.build-7.outputs.finished }}
-          from_artifact: 'true'
+          from_artifact: 'auto'
         env:
           LOCAL_TEST_JKS: ${{ secrets.LOCAL_TEST_JKS }}
           STORE_TEST_JKS: ${{ secrets.STORE_TEST_JKS }}
@@ -185,7 +191,7 @@ jobs:
         uses: ./.github/actions/stage
         with:
           finished: ${{ needs.build-8.outputs.finished }}
-          from_artifact: 'true'
+          from_artifact: 'auto'
         env:
           LOCAL_TEST_JKS: ${{ secrets.LOCAL_TEST_JKS }}
           STORE_TEST_JKS: ${{ secrets.STORE_TEST_JKS }}
@@ -205,7 +211,7 @@ jobs:
         uses: ./.github/actions/stage
         with:
           finished: ${{ needs.build-9.outputs.finished }}
-          from_artifact: 'true'
+          from_artifact: 'auto'
         env:
           LOCAL_TEST_JKS: ${{ secrets.LOCAL_TEST_JKS }}
           STORE_TEST_JKS: ${{ secrets.STORE_TEST_JKS }}
@@ -225,7 +231,7 @@ jobs:
         uses: ./.github/actions/stage
         with:
           finished: ${{ needs.build-10.outputs.finished }}
-          from_artifact: 'true'
+          from_artifact: 'auto'
         env:
           LOCAL_TEST_JKS: ${{ secrets.LOCAL_TEST_JKS }}
           STORE_TEST_JKS: ${{ secrets.STORE_TEST_JKS }}
@@ -245,7 +251,7 @@ jobs:
         uses: ./.github/actions/stage
         with:
           finished: ${{ needs.build-11.outputs.finished }}
-          from_artifact: 'true'
+          from_artifact: 'auto'
         env:
           LOCAL_TEST_JKS: ${{ secrets.LOCAL_TEST_JKS }}
           STORE_TEST_JKS: ${{ secrets.STORE_TEST_JKS }}
@@ -265,7 +271,7 @@ jobs:
         uses: ./.github/actions/stage
         with:
           finished: ${{ needs.build-12.outputs.finished }}
-          from_artifact: 'true'
+          from_artifact: 'auto'
         env:
           LOCAL_TEST_JKS: ${{ secrets.LOCAL_TEST_JKS }}
           STORE_TEST_JKS: ${{ secrets.STORE_TEST_JKS }}
@@ -285,7 +291,7 @@ jobs:
         uses: ./.github/actions/stage
         with:
           finished: ${{ needs.build-13.outputs.finished }}
-          from_artifact: 'true'
+          from_artifact: 'auto'
         env:
           LOCAL_TEST_JKS: ${{ secrets.LOCAL_TEST_JKS }}
           STORE_TEST_JKS: ${{ secrets.STORE_TEST_JKS }}
@@ -305,7 +311,7 @@ jobs:
         uses: ./.github/actions/stage
         with:
           finished: ${{ needs.build-14.outputs.finished }}
-          from_artifact: 'true'
+          from_artifact: 'auto'
         env:
           LOCAL_TEST_JKS: ${{ secrets.LOCAL_TEST_JKS }}
           STORE_TEST_JKS: ${{ secrets.STORE_TEST_JKS }}
@@ -325,7 +331,7 @@ jobs:
         uses: ./.github/actions/stage
         with:
           finished: ${{ needs.build-15.outputs.finished }}
-          from_artifact: 'true'
+          from_artifact: 'auto'
         env:
           LOCAL_TEST_JKS: ${{ secrets.LOCAL_TEST_JKS }}
           STORE_TEST_JKS: ${{ secrets.STORE_TEST_JKS }}

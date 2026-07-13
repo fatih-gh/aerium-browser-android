@@ -5,8 +5,9 @@ inputs:
     description: 'true if a previous stage already finished the build'
     required: true
   from_artifact:
-    description: 'true to restore the build tree from the previous stage artifact'
-    required: true
+    description: '"auto" to resume from a saved build tree when one exists, "never" to force a fresh start'
+    required: false
+    default: 'auto'
 outputs:
   finished:
     description: 'true once the signed APK has been produced'
@@ -20,7 +21,7 @@ runs:
       with:
         root-reserve-mb: '8192'
         temp-reserve-mb: '2048'
-        swap-size-mb: '4096'
+        swap-size-mb: '8192'
         remove-dotnet: 'true'
         remove-android: 'true'
         remove-haskell: 'true'
@@ -28,29 +29,38 @@ runs:
         remove-docker-images: 'true'
         build-mount-path: '${{ github.workspace }}/chromium'
 
-    - name: Restore build tree
-      if: inputs.finished != 'true' && inputs.from_artifact == 'true'
+    - name: Restore build tree (best effort)
+      if: inputs.finished != 'true' && inputs.from_artifact != 'never'
       uses: actions/download-artifact@v4
+      continue-on-error: true
       with:
         name: build-artifact-android
         path: ${{ github.workspace }}/chromium
 
     - name: Unpack build tree
-      if: inputs.finished != 'true' && inputs.from_artifact == 'true'
+      if: inputs.finished != 'true'
       shell: bash
       run: |
         cd "$GITHUB_WORKSPACE"
-        tar -x -I 'zstd -T0' -f chromium/artifacts.tar.zst
-        rm -f chromium/artifacts.tar.zst
+        if [ -f chromium/artifacts.tar.zst ]; then
+          echo "Resuming from saved build tree"
+          tar -x -I 'zstd -T0' -f chromium/artifacts.tar.zst
+          rm -f chromium/artifacts.tar.zst
+        else
+          echo "No saved build tree; starting fresh"
+        fi
         df -h /
 
     - name: Build
+      id: build
       if: inputs.finished != 'true'
       shell: bash
       run: |
         cd "$GITHUB_WORKSPACE"
         chmod +x *.sh res/*.sh
+        set +e
         ./build.sh --ci
+        echo "code=$?" >> "$GITHUB_OUTPUT"
         df -h /
 
     - name: Pack build tree
@@ -61,7 +71,9 @@ runs:
         cd "$GITHUB_WORKSPACE"
         if [ -f release/finished.marker ]; then
           echo "packed=finished" >> "$GITHUB_OUTPUT"
-        else
+        elif [ -f chromium/src/BUILD.gn ] && [ -f chromium/src/out/Default/args.gn ]; then
+          # Save progress even when this stage's build failed, so a fixed
+          # workflow can resume instead of starting over.
           EXTRA=""
           for f in chromium/.gclient_entries chromium/.gclient_previous_sync_commits; do
             [ -f "$f" ] && EXTRA="$EXTRA $f"
@@ -71,6 +83,9 @@ runs:
             chromium/src chromium/.gclient $EXTRA
           ls -la chromium/artifacts.tar.zst
           echo "packed=intermediate" >> "$GITHUB_OUTPUT"
+        else
+          echo "Source setup did not complete; nothing worth saving"
+          echo "packed=none" >> "$GITHUB_OUTPUT"
         fi
 
     - name: Upload build tree
@@ -92,6 +107,13 @@ runs:
         retention-days: 30
         compression-level: 0
         overwrite: true
+
+    - name: Fail stage if the build failed
+      if: inputs.finished != 'true' && steps.build.outputs.code != '0'
+      shell: bash
+      run: |
+        echo "build.sh exited with code ${{ steps.build.outputs.code }} (tree was saved for resume)"
+        exit 1
 
     - name: Set result
       id: result

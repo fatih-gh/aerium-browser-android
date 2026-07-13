@@ -130,8 +130,10 @@ if [ $MODE_CI = 1 ]; then
         exit 0
     fi
     echo "[aerium] compiling for at most $REMAINING_MIN minutes"
+    # -j 3: the free runners have 4 vCPUs but only 16 GB RAM; full
+    # parallelism gets the compiler OOM-killed (exit 137) on heavy TUs.
     set +e
-    timeout --foreground -s INT -k 5m ${REMAINING_MIN}m autoninja -C out/Default chrome_public_apk
+    timeout --foreground -s INT -k 5m ${REMAINING_MIN}m autoninja -j "${NINJA_JOBS:-3}" -C out/Default chrome_public_apk
     RET=$?
     set -e
     if [ $RET = 124 ]; then
@@ -142,7 +144,7 @@ if [ $MODE_CI = 1 ]; then
         exit $RET
     fi
 else
-    autoninja -C out/Default chrome_public_apk
+    autoninja -j "${NINJA_JOBS:-3}" -C out/Default chrome_public_apk
 fi
 
 # --- sign & finish ------------------------------------------------------------
