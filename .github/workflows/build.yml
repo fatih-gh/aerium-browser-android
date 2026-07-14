@@ -336,9 +336,39 @@ jobs:
           LOCAL_TEST_JKS: ${{ secrets.LOCAL_TEST_JKS }}
           STORE_TEST_JKS: ${{ secrets.STORE_TEST_JKS }}
 
+  publish-release:
+    runs-on: ubuntu-latest
+    needs: build-16
+    if: ${{ needs.build-16.outputs.finished == 'true' }}
+    permissions:
+      contents: write
+    steps:
+      - name: Verify build finished
+        run: echo "Build finished - publishing the Aerium APK."
+      - name: Download APK artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: aerium-android
+          path: release
+      - name: Resolve version
+        id: ver
+        run: |
+          V="$(cat release/version.txt 2>/dev/null || true)"
+          [ -z "$V" ] && V="$(ls release/aerium-*-arm64-v8a.apk | sed -E 's/.*aerium-([0-9.]+)-arm64.*/\1/' | head -n1)"
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+          echo "Resolved version: $V"
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.ver.outputs.version }}
+          name: Aerium ${{ steps.ver.outputs.version }} (arm64)
+          fail_on_unmatched_files: true
+          files: release/aerium-*-arm64-v8a.apk
+
   check-completion:
     runs-on: ubuntu-latest
     needs: build-16
+    if: ${{ always() }}
     steps:
       - name: Verify build finished
         run: |
@@ -346,4 +376,4 @@ jobs:
             echo "Build did not finish within 16 stages; dispatch the workflow again to continue from the saved tree."
             exit 1
           fi
-          echo "Build finished - APK is in the aerium-android artifact."
+          echo "Build finished - APK is in the aerium-android artifact and published as a release."

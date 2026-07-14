@@ -1,0 +1,54 @@
+name: Upstream watch
+
+# Checks weekly whether the upstream project (and thus the Chromium base)
+# has a newer release than what Aerium is currently built on, and opens a
+# tracking issue when it does. Purely informational; never builds.
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'   # Mondays 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Compare upstream vs current
+        env:
+          GH_TOKEN: ${{ github.token }}
+          UPSTREAM: jqssun/android-helium-browser
+        run: |
+          set -euo pipefail
+
+          current="$(grep -m1 -oE '[0-9]+(\.[0-9]+){3}' vanadium/args.gn || echo unknown)"
+          upstream_sha="$(gh api repos/$UPSTREAM/commits/main --jq '.sha' | cut -c1-7)"
+          upstream_msg="$(gh api repos/$UPSTREAM/commits/main --jq '.commit.message' | head -n1)"
+          upstream_tag="$(gh api "repos/$UPSTREAM/tags?per_page=1" --jq '.[0].name' || echo none)"
+
+          echo "current base: $current"
+          echo "upstream tag: $upstream_tag  head: $upstream_sha"
+
+          seen_file=".github/.upstream-seen"
+          seen="$(cat "$seen_file" 2>/dev/null || echo none)"
+          if [ "$upstream_sha" = "$seen" ]; then
+            echo "Already reported $upstream_sha; nothing to do."
+            exit 0
+          fi
+
+          title="Upstream update available: $upstream_tag ($upstream_sha)"
+          existing="$(gh issue list --state open --search "in:title Upstream update available" --json number --jq '.[0].number' || true)"
+          body="$(printf 'Upstream **%s** has moved.\n\n- Latest tag: \`%s\`\n- Latest commit: \`%s\` — %s\n- Aerium base: \`%s\`\n\nSync steps are in [UPDATING.md](../blob/main/UPDATING.md). Remember: upstream force-pushes, so cherry-pick patch.sh changes rather than merging.' "$UPSTREAM" "$upstream_tag" "$upstream_sha" "$upstream_msg" "$current")"
+
+          if [ -n "${existing:-}" ] && [ "$existing" != "null" ]; then
+            gh issue edit "$existing" --title "$title" --body "$body"
+            echo "Updated issue #$existing"
+          else
+            gh issue create --title "$title" --body "$body" --label upstream || \
+            gh issue create --title "$title" --body "$body"
+          fi
