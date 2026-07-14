@@ -19,6 +19,13 @@ done
 sed -i 's/registry->RegisterBooleanPref(kAutofillUsingPlatformAutofill, false);/registry->RegisterBooleanPref(kAutofillUsingPlatformAutofill, true);/' \
     components/autofill/core/common/autofill_prefs.cc
 
+# --- Space New Tab Page: replace the flat home-surface background with a
+# radial deep-space gradient (lighter navy core fading to near-black edges).
+# Code-only (fully-qualified GradientDrawable, no new resources / R refs) so
+# it can't break resource compilation.
+sed -i 's|setBackgroundColor(ChromeSemanticColorUtils.getHomeSurfaceBackgroundColor(getContext()));|{ android.graphics.drawable.GradientDrawable __aeriumNtpBg = new android.graphics.drawable.GradientDrawable(); __aeriumNtpBg.setGradientType(android.graphics.drawable.GradientDrawable.RADIAL_GRADIENT); __aeriumNtpBg.setColors(new int[]{0xFF1B2C5E, 0xFF0B1026}); __aeriumNtpBg.setGradientRadius(1600f); __aeriumNtpBg.setGradientCenter(0.5f, 0.28f); setBackground(__aeriumNtpBg); }|' \
+    chrome/android/java/src/org/chromium/chrome/browser/ntp/NewTabPageLayout.java
+
 # --- Default to dark theme (user can still change it in appearance settings)
 sed -i 's/return ThemeType.SYSTEM_DEFAULT;/return ThemeType.DARK;/' \
     chrome/browser/ui/android/night_mode/java/src/org/chromium/chrome/browser/night_mode/NightModeUtils.java
