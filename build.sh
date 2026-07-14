@@ -88,7 +88,29 @@ EOF
     gclient sync -D --no-history --nohooks
     gclient runhooks
     rm -rf third_party/angle/third_party/VK-GL-CTS/
+
+    # Prune test-only data that chrome_public_apk never depends on. GN only
+    # evaluates targets reachable from what we build, so removing these does
+    # not affect `gn gen`/compile; it only frees disk. This is the single
+    # largest reclaimable chunk of a fresh checkout (many GB of test HTML/
+    # images/fixtures) and stage 1 (fresh checkout + first compile slice)
+    # has repeatedly hit the runner's disk ceiling without it.
+    echo "[aerium] pruning test-only data..."
+    du -sh . 2>/dev/null | tail -1
+    for d in \
+        third_party/blink/web_tests \
+        third_party/blink/perf_tests \
+        chrome/test/data \
+        content/test/data \
+        courgette/testdata \
+    ; do
+        [ -d "$d" ] && du -sh "$d" 2>/dev/null && rm -rf "$d"
+    done
+    du -sh . 2>/dev/null | tail -1
+
     ./build/install-build-deps.sh --no-prompt
+    sudo apt-get clean
+    sudo rm -rf /var/lib/apt/lists/*
 
     source $SCRIPT_DIR/patch.sh
     source $SCRIPT_DIR/theme.sh
