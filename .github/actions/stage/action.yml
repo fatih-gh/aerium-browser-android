@@ -83,9 +83,20 @@ runs:
           for f in chromium/.gclient_entries chromium/.gclient_previous_sync_commits; do
             [ -f "$f" ] && EXTRA="$EXTRA $f"
           done
+          # tar exit code 1 only means files changed while reading (siso's
+          # volatile state journal etc.) - the archive is still usable.
+          set +e
           tar -c -I 'zstd -T0 -3' -f chromium/artifacts.tar.zst \
+            --warning=no-file-changed \
             --exclude='chromium/artifacts.tar.zst' \
+            --exclude='chromium/src/out/Default/.siso_fs_state.journal' \
             chromium/src chromium/.gclient $EXTRA
+          RC=$?
+          set -e
+          if [ $RC -gt 1 ]; then
+            echo "tar failed with exit code $RC"
+            exit $RC
+          fi
           ls -la chromium/artifacts.tar.zst
           echo "packed=intermediate" >> "$GITHUB_OUTPUT"
         else

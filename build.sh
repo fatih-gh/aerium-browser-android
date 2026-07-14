@@ -130,12 +130,17 @@ if [ $MODE_CI = 1 ]; then
         exit 0
     fi
     echo "[aerium] compiling for at most $REMAINING_MIN minutes"
-    # -j 3: the free runners have 4 vCPUs but only 16 GB RAM; full
-    # parallelism gets the compiler OOM-killed (exit 137) on heavy TUs.
+    # -j 2: the free runners have 4 vCPUs but only 16 GB RAM; even -j 3 got
+    # the compiler OOM-killed (exit 137) on heavy TU clusters. Two jobs peak
+    # at ~14 GB worst case, which fits without relying on swap.
     set +e
-    timeout --foreground -s INT -k 5m ${REMAINING_MIN}m autoninja -j "${NINJA_JOBS:-3}" -C out/Default chrome_public_apk
+    timeout --foreground -s INT -k 5m ${REMAINING_MIN}m autoninja -j "${NINJA_JOBS:-2}" -C out/Default chrome_public_apk
     RET=$?
     set -e
+    # Kill any straggler build processes so nothing keeps writing to the
+    # tree while the stage action packs it into the resume artifact.
+    pkill -9 -f 'siso' 2>/dev/null || true
+    sleep 3
     if [ $RET = 124 ]; then
         echo "[aerium] time budget reached; build will resume on the next stage"
         exit 0
@@ -144,7 +149,7 @@ if [ $MODE_CI = 1 ]; then
         exit $RET
     fi
 else
-    autoninja -j "${NINJA_JOBS:-3}" -C out/Default chrome_public_apk
+    autoninja -j "${NINJA_JOBS:-2}" -C out/Default chrome_public_apk
 fi
 
 # --- sign & finish ------------------------------------------------------------
