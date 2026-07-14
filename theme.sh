@@ -12,6 +12,13 @@ grep -rl --include='*.grd' --include='*.grdp' --include='*.xtb' 'Chromium' \
     sed -i 's/The Chromium Authors/Dioide/g; s/Chromium/Aerium/g' "$f"
 done
 
+# --- Ungoogled-style privacy default: disable Safe Browsing by default. It
+# is the main recurring Google phone-home on Android (URL/reputation pings);
+# ungoogled-chromium removes it at build level. Left toggleable in
+# Settings -> Privacy and security for users who want it.
+sed -i 's/prefs::kSafeBrowsingEnabled, true,/prefs::kSafeBrowsingEnabled, false,/' \
+    components/safe_browsing/core/common/safe_browsing_prefs.cc
+
 # --- Use the Android Autofill framework by default so third-party password
 # managers (Bitwarden etc.) fill web forms natively instead of relying on
 # flaky accessibility-based compatibility mode. User-changeable in
