@@ -116,6 +116,13 @@ EOF
 
     cp $SCRIPT_DIR/args.gn out/Default/args.gn
     gn gen out/Default
+
+    # Nothing past this point runs git against chromium/src (no later stage
+    # calls gclient/git - only ninja), so its history is dead weight. This
+    # is a modest, low-risk reclaim; it does not touch out/Default or any
+    # third_party checkout the build actually depends on.
+    rm -rf .git
+
     cd $SCRIPT_DIR
 fi
 
