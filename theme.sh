@@ -48,4 +48,21 @@ P=ui/android/java/res/values/color_palette.xml
 sed -i 's/#131314/#101730/g; s/#1E1F20/#1A2340/g; s/#1B1B1B/#151D38/g; s/#282A2C/#232D4E/g; s/#333537/#2C3859/g; s/#37393B/#313D61/g' "$P"
 sed -i 's/#28282A/#262E4C/g; s/#2D2E31/#2A3354/g; s/#313336/#2E3859/g; s/#333539/#303B5D/g; s/#37393D/#344062/g; s/#42454B/#3D4B72/g' "$P"
 
+# --- Accent color (buttons, links, selected states): hue-rotate the stock
+# baseline_primary_* and baseline_secondary_* tonal ramps onto Aerium's brand
+# blue (~205.6deg hue, from logo color #4C97CF), keeping each step's original
+# saturation/lightness so the M3 contrast tuning is preserved - this is a
+# rehue, not a re-lightness, so accessibility ratios are untouched. Tertiary
+# (green, used for success/positive indicators) is left alone on purpose.
+sed -i \
+    -e 's/#041E49/#042C49/g' -e 's/#062E6F/#06426F/g' -e 's/#0842A0/#085FA0/g' \
+    -e 's/#0B57D0/#0B7CD0/g' -e 's/#1B6EF3/#1B97F3/g' -e 's/#4C8DF6/#4CADF6/g' \
+    -e 's/#7CACF8/#7CC3F8/g' -e 's/#A8C7FA/#A8D7FA/g' -e 's/#D3E3FD/#D3EBFD/g' \
+    -e 's/#ECF3FE/#ECF6FE/g' \
+    -e 's/#001D35/#001E35/g' -e 's/#003F66/#003A66/g' -e 's/#004A77/#004477/g' \
+    -e 's/#005789/#004E89/g' -e 's/#00639B/#00599B/g' -e 's/#047DB7/#046AB7/g' \
+    -e 's/#3998D3/#3991D3/g' -e 's/#5AB3F0/#5AB0F0/g' -e 's/#7FCFFF/#7FC8FF/g' \
+    -e 's/#C2E7FF/#C2E5FF/g' -e 's/#DFF3FF/#DFF1FF/g' \
+    "$P"
+
 echo "[aerium] theme + rename pass applied"
