@@ -1,4 +1,4 @@
-chrome_public_manifest_package = "io.github.fatihgh.aerium"
+chrome_public_manifest_package = "io.dioide.aerium"
 is_desktop_android = true
 target_os = "android"
 target_cpu = "arm64"

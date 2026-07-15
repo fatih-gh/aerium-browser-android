@@ -20,7 +20,7 @@ A privacy-hardened, extension-capable Chromium browser for Android, built on [Va
 - **Space-navy theme by default** — dark UI, a radial deep-space gradient on the New Tab Page, and the Aerium roundel in place of the stock icon.
 - **Android platform autofill enabled by default**, so third-party password managers (Bitwarden and friends) fill web forms natively instead of falling back to unreliable accessibility-based autofill.
 - **Safe Browsing off by default** — the main recurring Google phone-home on Android — toggleable back on in Settings if you want it.
-- **Aerium branding throughout**: app name, package ID (`io.github.fatihgh.aerium`), icons, launcher tiles.
+- **Aerium branding throughout**: app name, package ID (`io.dioide.aerium`), icons, launcher tiles.
 
 ## Usage
 
