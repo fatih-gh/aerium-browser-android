@@ -1,9 +1,13 @@
-A fully open-source experimental Chromium-based web browser for Android with extensions support.
+Aerium is an open-source, Chromium-based browser for Android built on Vanadium (GrapheneOS), with extension support and a deep-navy space theme.
 
-- Installing Extensions: Navigate to Chrome Web Store, enable "Desktop site", and then proceed as normal. Manifest V2 (MV2) extensions are supported. You can install uBlock Origin from Chrome Web Store.
+- Extensions: Navigate to the Chrome Web Store, enable "Desktop site", and install as normal. Manifest V2 (MV2) extensions are supported, along with Opera and Microsoft Edge add-on stores. Unpacked extensions can also be loaded manually via Developer mode.
 
-- Using Extensions: To use an extension's popup, open extensions menu, select the menu button next to the extension, and choose "Pin to toolbar" from the list. You can then open the popup using the extension's dedicated toolbar icon. To run an extension in Incognito (OTR) mode, go to "Manage extensions", find the extension you want to use in Incognito mode, select "Details", and turn on "Allow in Incognito".
+- Using extensions: Pin an extension's icon to the toolbar from the menu next to it in the extensions list to access its popup. To allow an extension in Incognito, go to "Manage extensions", select "Details", and enable "Allow in Incognito".
 
-- Debug URLs: To view and access them, use "chrome://chrome-urls".
+- Autofill: Android's platform autofill is used by default, so third-party password managers fill web forms natively.
 
-- WebRTC IP Policy: Available under "Privacy and security" in Settings. If you experience issues with WebRTC due to IPs being shielded by default, you may try to change it to Default public interface only, or Default.
+- Privacy: Safe Browsing is off by default (toggleable in Settings), and the browser avoids unnecessary background traffic.
+
+- Debug URLs: use "chrome://chrome-urls" to view them.
+
+- WebRTC IP policy: available under "Privacy and security" in Settings.

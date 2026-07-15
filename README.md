@@ -1,104 +1,61 @@
-# Aerium Browser for Android
+<p align="center">
+  <img src="res/aerium.svg" width="96" height="96" alt="Aerium logo">
+</p>
 
-> Fork of [jqssun/android-helium-browser](https://github.com/jqssun/android-helium-browser) rebranded as **Aerium**: arm64-only, no AAB, staged 16-job GitHub Actions pipeline for free ubuntu-latest runners (time-boxed autoninja + artifact handoff). Secrets required: LOCAL_TEST_JKS, STORE_TEST_JKS.
+<h1 align="center">Aerium for Android</h1>
 
+<p align="center"><i>by Dioide</i></p>
 
-[![GitHub](https://img.shields.io/github/downloads/jqssun/android-helium-browser/total?label=GitHub&logo=GitHub)](https://github.com/jqssun/android-helium-browser/releases)
-[![license](https://img.shields.io/badge/License-GPLv2-blue.svg)](https://github.com/jqssun/android-helium-browser/blob/main/LICENSE)
-[![build](https://img.shields.io/github/actions/workflow/status/jqssun/android-helium-browser/build.yml)](https://github.com/jqssun/android-helium-browser/actions/workflows/build.yml)
-[![release](https://img.shields.io/github/v/release/jqssun/android-helium-browser)](https://github.com/jqssun/android-helium-browser/releases)
+[![build](https://img.shields.io/github/actions/workflow/status/fatih-gh/aerium-browser-android/build.yml?label=build)](https://github.com/fatih-gh/aerium-browser-android/actions/workflows/build.yml)
+[![release](https://img.shields.io/github/v/release/fatih-gh/aerium-browser-android)](https://github.com/fatih-gh/aerium-browser-android/releases/latest)
+[![license](https://img.shields.io/badge/License-GPLv2-blue.svg)](LICENSE)
 
-A fully open-source experimental Chromium-based web browser for Android with extensions support, based on
-- [Vanadium](https://github.com/GrapheneOS/Vanadium) by [GrapheneOS](https://github.com/GrapheneOS)
-- [Helium](https://github.com/imputnet/helium) by [imput](https://github.com/imputnet) (future patches pending GPLv2 compatibility)
+A privacy-hardened, extension-capable Chromium browser for Android, built on [Vanadium](https://github.com/GrapheneOS/Vanadium) (GrapheneOS), with a deep-navy space identity and a handful of defaults chosen for a saner out-of-the-box experience. arm64 only, built entirely on free GitHub Actions runners.
 
-[<img height="48" alt="Get it on GitHub" src="https://jqssun.github.io/images/badges/github.svg">](https://github.com/jqssun/android-helium-browser/releases/latest)
+[**Download the latest release**](https://github.com/fatih-gh/aerium-browser-android/releases/latest)
 
-<img alt="Helium Browser for Android" src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" />
+## What's different from stock Vanadium
+
+- **Extensions, including Manifest V2**, installable straight from the Chrome Web Store, plus Opera and Microsoft Edge add-on stores. Unpacked extensions can also be loaded manually via the Storage Access Framework picker.
+- **Space-navy theme by default** — dark UI, a radial deep-space gradient on the New Tab Page, and the Aerium roundel in place of the stock icon.
+- **Android platform autofill enabled by default**, so third-party password managers (Bitwarden and friends) fill web forms natively instead of falling back to unreliable accessibility-based autofill.
+- **Safe Browsing off by default** — the main recurring Google phone-home on Android — toggleable back on in Settings if you want it.
+- **Aerium branding throughout**: app name, package ID (`io.github.fatihgh.aerium`), icons, launcher tiles.
 
 ## Usage
 
-### Installing Extensions
+### Installing extensions
 
-Navigate to [Chrome Web Store](https://chromewebstore.google.com/), enable **Desktop site** by selecting the menu button <kbd>⋮</kbd> in the top right corner and ensure the option is checked. Select **Okay** and proceed as normal if prompted with:
-> The Chrome Web Store is only available on desktop.
+Open the [Chrome Web Store](https://chromewebstore.google.com/), switch on **Desktop site** from the <kbd>⋮</kbd> menu, and install as normal. Manifest V2 (MV2) extensions are supported — [uBlock Origin](https://chromewebstore.google.com/detail/ublock-origin/cjpalhdlnbpafiamejdnhcphjbkeiagm) and [floccus bookmarks sync](https://chromewebstore.google.com/detail/floccus-bookmarks-sync/fnaicdffflnofjppbagibeoednhnbjhg) are both good starting points.
 
-Manifest V2 (MV2) extensions are supported. You can install [uBlock Origin from Chrome Web Store](https://chromewebstore.google.com/detail/ublock-origin/cjpalhdlnbpafiamejdnhcphjbkeiagm).
- 
-Once you select **Add to Chrome**, [the extension will be installed in the background](https://support.google.com/chrome_webstore/answer/2664769) until the button changes to **Remove from Chrome**.
+Opera and Microsoft Edge add-on stores work too. You can also load an unpacked extension by opening **Manage extensions** (`chrome://extensions`), enabling **Developer mode**, and choosing **Load unpacked** — pick the extension's folder in the file picker.
 
-### Using Extensions
+### Using extensions
 
-To use [an extension's popup](https://developer.chrome.com/docs/extensions/develop/ui/add-popup), open extensions menu, select the menu button <kbd>⋮</kbd> next to the extension, and choose **Pin to toolbar** from the list. You can then open the popup using the extension's dedicated toolbar icon. 
+Pin an extension's icon to the toolbar from the <kbd>⋮</kbd> menu next to it in the extensions list to access its popup directly. To allow an extension in Incognito, go to **Manage extensions → Details** and enable **Allow in Incognito**.
 
-To run an extension in Incognito (OTR) mode, go to **Manage extensions**, find the extension you want to use in Incognito mode, select **Details**, and turn on **Allow in Incognito**.
+### Debug and flags
 
-### Debug URLs
+`chrome://chrome-urls` lists every internal page; `chrome://flags` has the full set of experiments, same as upstream Chromium.
 
-To view and access the debug URLs, use [`chrome://chrome-urls`](chrome://chrome-urls). For **Experiments**, use [`chrome://flags`](chrome://flags).
+### WebRTC IP handling
 
-### WebRTC IP Policy
+**Settings → Privacy and security → WebRTC IP handling policy**. If a WebRTC service (e.g. Discord voice) misbehaves because your IP is shielded by default, switch this to **Default public interface only** or **Default**.
 
-Consistent with both Helium and Vanadium, the option is available by selecting the menu button <kbd>⋮</kbd> in the top right corner, then **Settings**, **Privacy and security**, then under **Privacy**, **WebRTC IP handling policy**. If you experience issues with WebRTC due to the IPs being shielded by default (e.g. [Discord Voice](https://discord.com/blog/how-discord-handles-two-and-half-million-concurrent-voice-users-using-webrtc)), you may try to change it to **Default public interface only**, or **Default**.
+## Building it yourself
 
-## Implementation
+Builds run entirely on free GitHub Actions (public repo, staged across resumable jobs to fit Chromium's compile time into the free-tier limits). To build your own signed APK:
 
-> [!WARNING]
-> All builds are experimental, so unexpected issues may occur. [Helium Browser for Android](#helium-browser-for-android) only attempts to improve security and privacy where possible. For better protection on Android, you should instead use [GrapheneOS](https://grapheneos.org) with [Vanadium](https://vanadium.app), which additionally integrates patches into Android System WebView and provides significant kernel and memory management hardening on the OS level.
+1. Fork this repository.
+2. Generate a signing keystore and add it as two base64-encoded repository secrets, `STORE_TEST_JKS` and `LOCAL_TEST_JKS` (see `common.sh` for the expected format).
+3. Go to **Actions → Build → Run workflow**.
 
-```mermaid
----
-config:
-  layout: dagre
----
-flowchart TD
- subgraph s1["Helium"]
-        n5["Generic Patches<small><br>patches/series</small>"]
-        n6["Name Substitution<small><br>utils/name_substitution.py</small>"]
-        n7["Version Patch<small><br>{*version,revision}.txt</small>"]
-        n8["Resource Patch<small><br>resources/*resources.txt</small>"]
-  end
- subgraph s2["Vanadium"]
-        n9["Generic Patches<small><br>patches/*.patch</small>"]
-  end
- subgraph s3["Helium Browser for Android"]
-        n11["GN Build Configuration<small><br>args.gn</small>"]
-        n12["Signed Release"]
-  end
-    n1["Chromium"] --> s1 & s2
-    n5 --> n6
-    n6 --> n7
-    n7 --> n8
-    s1 --> s3
-    s2 --> s3
-    n11 --> n12
-    n5@{ shape: subproc}
-    n6@{ shape: subproc}
-    n7@{ shape: subproc}
-    n8@{ shape: subproc}
-    n9@{ shape: subproc}
-    n11@{ shape: subproc}
-    n12@{ shape: subproc}
-    n1@{ shape: rounded}
-    classDef Aqua stroke-width:1px, stroke-dasharray:none, stroke:#46EDC8, fill:#DEFFF8, color:#378E7A
-    style n5 stroke:#FF6D00
-    style n8 stroke:#FF6D00
-```
-
-All [Vanadium](https://github.com/GrapheneOS/Vanadium) patches are applied by default. While the full build aims to be consistent with [Helium](https://github.com/imputnet/helium-linux), downstream implementation of Helium patches is currently paused to ensure strict compliance with upstream licensing requirements. The diagram reflects the architecture of initial ported releases and serves as the target framework if resolution is achieved.
-
-## Building
-
-All releases are built using [Actions](https://github.com/features/actions). Current releases can also be attested using [GitHub CLI](https://github.com/cli/cli).
-
-```shell
-gh attestation verify *.apk -R jqssun/android-helium-browser
-```
-
-This repository provides the build script to compile on the latest Ubuntu, and may also work with other Linux distributions.
-
-To build these releases yourself via CI (e.g. GitHub Actions), fork this repository. Supply your `base64` encoded `keystore.jks` and `local.properties` (containing your `keyAlias`, `keyPassword` and `storePassword`) to [**Repository secrets**](https://github.com/jqssun/android-helium-browser/blob/main/.github/workflows/build.yml#L49-L50) under **Settings** > **Secrets and variables** > **Actions**. To generate a release, go to **Actions**, select **Build**, and select **Run workflow**. Under **Runner**, you can either use a GitHub-hosted runner by entering `ubuntu-latest`, or `self-hosted` for your own hardware.
+See [UPDATING.md](UPDATING.md) for the version-bump/maintenance playbook.
 
 ## Credits
 
-This project would not have been possible without the huge community contributions from [Vanadium](https://github.com/GrapheneOS/Vanadium), [Helium](https://github.com/imputnet/helium), as well as [ungoogled-chromium](https://github.com/ungoogled-software/ungoogled-chromium) and various other upstream projects. All credit goes to the original authors and contributors. This project started around the same time as [Helium Browser for Linux](https://github.com/imputnet/helium-linux) but it is not officially affiliated with the upstream [Helium](https://github.com/imputnet/helium) project.
+Built on [Vanadium](https://github.com/GrapheneOS/Vanadium) by [GrapheneOS](https://github.com/GrapheneOS), and forked from [jqssun/android-helium-browser](https://github.com/jqssun/android-helium-browser), which pioneered extension support on Chromium for Android. Also indebted to [ungoogled-chromium](https://github.com/ungoogled-software/ungoogled-chromium) for the broader de-Googling approach this project draws on. All credit for the underlying engineering goes to those projects; Aerium is our own fork, theme, and set of default choices layered on top.
+
+## License
+
+[GPLv2](LICENSE), inherited from the upstream projects this is built on.

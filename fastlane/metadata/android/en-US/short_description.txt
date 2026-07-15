@@ -1,1 +1,1 @@
-Private and secure open-source Android browser with support for extensions
+Aerium: a private, space-themed Chromium browser with extension support
