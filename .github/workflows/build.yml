@@ -1,6 +1,12 @@
 name: Build
 
 on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'fastlane/**'
+      - 'LICENSE'
   workflow_dispatch:
     inputs:
       fresh:
@@ -14,7 +20,7 @@ permissions:
 
 concurrency:
   group: aerium-android-build
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build-1:
