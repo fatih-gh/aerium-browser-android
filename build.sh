@@ -136,8 +136,21 @@ if [ $MODE_CI = 1 ]; then
     # -j 2: the free runners have 4 vCPUs but only 16 GB RAM; even -j 3 got
     # the compiler OOM-killed (exit 137) on heavy TU clusters. Two jobs peak
     # at ~14 GB worst case, which fits without relying on swap.
+    #
+    # NOTE on the timeout invocation: do NOT pass --foreground here. Per GNU
+    # coreutils docs, --foreground means "children of command will not be
+    # timed out" - i.e. the SIGINT would only reach the `autoninja` wrapper,
+    # not ninja's actual compiler subprocesses, which could then keep
+    # compiling (and writing object files) for the full -k grace period
+    # regardless of the intended cutoff. Every previous timed-out stage
+    # failed with exit 137 at almost exactly the REMAINING_MIN mark - the
+    # signature of the -k grace period's SIGKILL, not a graceful stop.
+    # Without --foreground, timeout puts autoninja/ninja in their own
+    # process group and signals the whole group, so SIGINT reaches the
+    # in-flight compiler jobs directly. -k is still generous (10m) as a
+    # backstop for any single translation unit that's slow to unwind.
     set +e
-    timeout --foreground -s INT -k 5m ${REMAINING_MIN}m autoninja -j "${NINJA_JOBS:-2}" -C out/Default chrome_public_apk
+    timeout -s INT -k 10m ${REMAINING_MIN}m autoninja -j "${NINJA_JOBS:-2}" -C out/Default chrome_public_apk
     RET=$?
     set -e
     # Kill any straggler build processes so nothing keeps writing to the
