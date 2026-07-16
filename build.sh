@@ -41,6 +41,15 @@ if [ ! -d depot_tools ]; then
 fi
 export PATH="$SCRIPT_DIR/depot_tools:$PATH"
 
+# depot_tools normally self-bootstraps (fetches its pinned python3/cipd
+# tooling) the first time gclient/gn runs. On resumed stages the entire
+# fresh-setup block below - the only place that calls gclient/gn - is
+# skipped, so a freshly cloned depot_tools here never gets bootstrapped and
+# autoninja fails with "python3_bin_reldir.txt not found". Run the
+# dedicated bootstrap-only script unconditionally so every stage has a
+# working depot_tools regardless of whether source setup runs.
+"$SCRIPT_DIR/depot_tools/ensure_bootstrap"
+
 # --- source setup: only on the first stage ----------------------------------
 if [ ! -f chromium/src/BUILD.gn ]; then
     # git am needs a committer identity on fresh CI runners
