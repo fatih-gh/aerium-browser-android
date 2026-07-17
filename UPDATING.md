@@ -9,10 +9,10 @@ How to move Aerium onto a newer Chromium/Vanadium release when the
   `jqssun/android-helium-browser` scripts. Chromium version is derived
   from `vanadium/args.gn`.
 - **Our changes**: `build.sh` (staged CI build), `theme.sh` (rename,
-  privacy/battery-efficiency defaults, platform autofill — visual
-  theming is left stock), `patch.sh` (extension/UX seds — kept in sync
-  with upstream), `res/` (Aerium icons), `args.gn`, the staged
-  workflow under `.github/`.
+  privacy/battery-efficiency defaults, platform autofill, search-engine
+  defaults — visual theming is left stock), `patch.sh` (extension/UX
+  seds — kept in sync with upstream), `res/` (Aerium icons), `args.gn`,
+  the staged workflow under `.github/`.
 
 ## Sync procedure
 
@@ -51,6 +51,16 @@ silently no-ops or `git am` (Vanadium patches) rejects.
 - **Our `patch.sh` sed no-op** (compile error later, e.g. an expected
   symbol missing): grep the new Chromium source for the changed line and
   update the sed's match text.
+- **Search-engine block in `theme.sh`**: targets
+  `third_party/search_engines_data/resources/definitions/*.json` — a
+  DEPS-pulled subproject that only exists after `gclient sync`, which is
+  why the block lives in `theme.sh` (runs post-sync) and not in a
+  `git am` patch (those run pre-sync). Its fallback-ID sed matches both
+  `google.id` and `duckduckgo.id` because Vanadium's patch 0116 already
+  retargets the stock lookup — if Vanadium drops or renames 0116 this
+  still works. Our engine IDs start at 1001 so upstream additions can
+  never collide; if upstream raises `kCurrentDataVersion` past 250,
+  raise ours above it again.
 
 ## Seeded incremental builds (planned)
 

@@ -134,4 +134,69 @@ sed -i '/^  AddWidevine(cdms);$/c\
     AddWidevine(cdms);\
   }' chrome/common/media/cdm_registration.cc
 
+# --- Default search engines: replace every per-country engine list with one
+# fixed privacy-focused set - Startpage (default), DuckDuckGo, DuckDuckGo
+# Lite, DuckDuckGo HTML and SearXNG (searx.be instance). Stock keeps
+# Google-led per-country lists; ungoogled-style builds leave the user with a
+# broken/absent default until they configure one manually. Any other engine
+# can still be added by hand in settings.
+#
+# Mechanics (verified against Chromium 150.0.7871.124 source):
+# - prepopulated_engines.json is the master engine list (startpage already
+#   exists upstream, id 113, with a bundled icon; the DuckDuckGo variants and
+#   SearXNG are new entries). New IDs use 1001+ so they can never collide
+#   with upstream IDs on a version bump (kMaxPrepopulatedEngineID tracks the
+#   highest, UMA-only). kCurrentDataVersion is raised so profiles created by
+#   earlier builds pick up the new list on update.
+# - regional_settings.json's "ZZ" element is the fallback list for countries
+#   without their own entry; GetRegionalSettings() in
+#   regional_capabilities_utils.cc is redirected to always use it
+#   (CountryId() == "ZZ" == unknown country, see country_codes.h), which
+#   makes the ZZ list the single list for every country.
+# - GetPrepopulatedFallbackSearch() in template_url_prepopulate_data.cc picks
+#   the engine it looks up by ID first, falling back to the list head;
+#   pointing it at startpage.id makes Startpage the out-of-the-box default
+#   (Vanadium's patch 0116 already retargeted the stock google.id lookup to
+#   duckduckgo.id, hence the dual pattern below).
+SE_DEFS=third_party/search_engines_data/resources/definitions
+sed -i '/^    "ecosia": {$/i\
+    "duckduckgo_html": {\
+      "name": "DuckDuckGo HTML",\
+      "keyword": "html.duckduckgo.com",\
+      "favicon_url": "https://duckduckgo.com/favicon.ico",\
+      "search_url": "https://html.duckduckgo.com/html/?q={searchTerms}",\
+      "suggest_url": "https://duckduckgo.com/ac/?q={searchTerms}\&type=list",\
+      "type": "SEARCH_ENGINE_DUCKDUCKGO",\
+      "id": 1001\
+    },\
+\
+    "duckduckgo_lite": {\
+      "name": "DuckDuckGo Lite",\
+      "keyword": "lite.duckduckgo.com",\
+      "favicon_url": "https://duckduckgo.com/favicon.ico",\
+      "search_url": "https://lite.duckduckgo.com/lite/?q={searchTerms}",\
+      "suggest_url": "https://duckduckgo.com/ac/?q={searchTerms}\&type=list",\
+      "type": "SEARCH_ENGINE_DUCKDUCKGO",\
+      "id": 1002\
+    },\
+' $SE_DEFS/prepopulated_engines.json
+sed -i '/^    "seznam": {$/i\
+    "searx": {\
+      "name": "SearXNG",\
+      "keyword": "searx.be",\
+      "favicon_url": "https://searx.be/favicon.ico",\
+      "search_url": "https://searx.be/search?q={searchTerms}",\
+      "type": "SEARCH_ENGINE_OTHER",\
+      "id": 1003\
+    },\
+' $SE_DEFS/prepopulated_engines.json
+sed -i 's/"kMaxPrepopulatedEngineID": [0-9]\+,/"kMaxPrepopulatedEngineID": 1003,/; s/"kCurrentDataVersion": [0-9]\+/"kCurrentDataVersion": 250/; s/"name": "startpage",/"name": "Startpage",/' \
+    $SE_DEFS/prepopulated_engines.json
+sed -i '/^    "ZZ": {$/,/^    }$/{s/^        "&google",$/        "\&startpage",\n        "\&duckduckgo",\n        "\&duckduckgo_lite",\n        "\&duckduckgo_html",\n        "\&searx"/; /^        "&bing",$/d; /^        "&yahoo"$/d}' \
+    $SE_DEFS/regional_settings.json
+sed -i 's|auto iter = TemplateURLPrepopulateData::kRegionalSettings.find(country_id);|// Aerium: every country gets the same privacy-focused engine list - the\n  // "ZZ" default in regional_settings.json - instead of per-country\n  // Google-led lists.\n  auto iter = TemplateURLPrepopulateData::kRegionalSettings.find(CountryId());|' \
+    components/regional_capabilities/regional_capabilities_utils.cc
+sed -i 's/^\( *\)\(google\|duckduckgo\)\.id,$/\1startpage.id,/' \
+    components/search_engines/template_url_prepopulate_data.cc
+
 echo "[aerium] theme + rename pass applied"

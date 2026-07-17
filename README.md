@@ -18,6 +18,7 @@ Aerium is a browser for people who'd rather their browser stayed out of the way.
 
 - **Extensions that actually work.** Manifest V2 support and Chrome Web Store access, plus Opera and Microsoft Edge add-on stores. Load an unpacked extension manually if you need to.
 - **Your password manager, working properly.** Android's own autofill framework is on by default, so Bitwarden and similar apps fill forms natively instead of falling back to flaky accessibility tricks.
+- **Search that works from the first keystroke.** Startpage is the default engine, with DuckDuckGo, DuckDuckGo Lite, DuckDuckGo HTML, and SearXNG ready to pick in Settings — and any other engine addable by hand.
 - **Its own name, its own icon — your own colors.** Dynamic color from your wallpaper and the light/dark toggle work exactly like stock Android Chrome; nothing forces a palette on top of it.
 - **Safe Browsing off by default.** It's the one Android feature that phones home to Google on every page you visit. Turn it back on in Settings if you want it.
 - **Lighter by default.** Background network chatter — hint prefetching, the Discover feed's background refresh, domain reliability pings — is off out of the box. The name comes from aerogel, the lightest solid there is.
