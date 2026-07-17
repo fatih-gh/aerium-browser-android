@@ -363,13 +363,22 @@ jobs:
           [ -z "$V" ] && V="$(ls release/aerium-*-arm64-v8a.apk | sed -E 's/.*aerium-([0-9.]+)-arm64.*/\1/' | head -n1)"
           echo "version=$V" >> "$GITHUB_OUTPUT"
           echo "Resolved version: $V"
+      - name: Compute checksum
+        run: |
+          set -euo pipefail
+          cd release
+          sha256sum aerium-*-arm64-v8a.apk > SHA256SUMS.txt
+          cat SHA256SUMS.txt
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.ver.outputs.version }}
           name: Aerium ${{ steps.ver.outputs.version }} (arm64)
+          generate_release_notes: true
           fail_on_unmatched_files: true
-          files: release/aerium-*-arm64-v8a.apk
+          files: |
+            release/aerium-*-arm64-v8a.apk
+            release/SHA256SUMS.txt
 
   check-completion:
     runs-on: ubuntu-latest
