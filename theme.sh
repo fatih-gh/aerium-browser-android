@@ -110,4 +110,28 @@ sed -i '/^  auto url_request_extra_data = base::MakeRefCounted<WebURLRequestExtr
 ' third_party/blink/renderer/platform/loader/fetch/url_loader/dedicated_or_shared_worker_global_scope_context_impl.cc \
   third_party/blink/renderer/modules/service_worker/web_service_worker_fetch_context_impl.cc
 
+# --- Widevine, toggleable and off by default (Brave-style). Aerium doesn't
+# bundle Google's proprietary CDM binary, but the interface is compiled in
+# (enable_widevine defaults to true for is_android and would default to true
+# for Chrome-branded desktop builds too - see third_party/widevine/cdm/
+# widevine.gni). Registering it unconditionally means every DRM-gated site
+# can silently probe for it, so gate registration on a new chrome://flags
+# entry instead. No ungoogled-chromium existing_switch_flag_entries.h here
+# (Vanadium isn't ungoogled-chromium-based), so the flag is added directly
+# to the main kFeatureEntries array.
+sed -i '/^const FeatureEntry kFeatureEntries\[\] = {$/a\
+    {"enable-widevine",\
+     "Enable Widevine DRM",\
+     "Registers the Widevine CDM so DRM-protected sites can play back content. Off by default - Aerium flag.",\
+     kOsAll, SINGLE_VALUE_TYPE("enable-widevine")},
+' chrome/browser/about_flags.cc
+sed -i '/^  AddWidevine(cdms);$/c\
+  // Off by default - Aerium doesn'"'"'t bundle Google'"'"'s proprietary CDM, and\
+  // registering it unconditionally means every DRM-gated site can silently\
+  // probe for it. Users who want DRM playback turn it on at\
+  // chrome://flags/#enable-widevine.\
+  if (base::CommandLine::ForCurrentProcess()->HasSwitch("enable-widevine")) {\
+    AddWidevine(cdms);\
+  }' chrome/common/media/cdm_registration.cc
+
 echo "[aerium] theme + rename pass applied"
