@@ -21,6 +21,7 @@ Aerium is a browser for people who'd rather their browser stayed out of the way.
 - **A browser that looks like Aerium.** Deep-navy interface, its own icon, its own identity — not a reskinned default.
 - **Safe Browsing off by default.** It's the one Android feature that phones home to Google on every page you visit. Turn it back on in Settings if you want it.
 - **Lighter by default.** Background network chatter — hint prefetching, the Discover feed's background refresh, domain reliability pings — is off out of the box. The name comes from aerogel, the lightest solid there is.
+- **HTTPS by default.** Balanced Mode upgrades navigations to HTTPS automatically, without the disruptive full-site warnings of strict HTTPS-only enforcement.
 
 ## Using extensions
 

@@ -94,4 +94,13 @@ sed -i 's/BASE_FEATURE(kInterestFeedV2, base::FEATURE_ENABLED_BY_DEFAULT);/BASE_
 sed -i 's/BASE_FEATURE(kSafetyHub, base::FEATURE_ENABLED_BY_DEFAULT);/BASE_FEATURE(kSafetyHub, base::FEATURE_DISABLED_BY_DEFAULT);/' \
     components/safety_check/features.cc
 
+# --- HTTPS-First Balanced Mode by default: upgrades navigations to HTTPS
+# when a site is expected to support it, without the disruptive full-site
+# interstitials of strict HTTPS-Only Mode. Stock Chromium ships this off,
+# with a gradual auto-enable heuristic for "typically secure" users that is
+# itself feature-flagged off at this version - so nobody gets it without
+# this flip. User-changeable in Settings -> Privacy and security -> Security.
+sed -i 's/prefs::kHttpsFirstBalancedMode, false,/prefs::kHttpsFirstBalancedMode, true,/' \
+    chrome/browser/ui/browser_ui_prefs.cc
+
 echo "[aerium] theme + rename pass applied"
