@@ -2,7 +2,7 @@
   <img src="res/aerium.svg" width="96" height="96" alt="Aerium logo">
 </p>
 
-<h1 align="center">Aerium for Android</h1>
+<h1 align="center">Aerium</h1>
 
 <p align="center"><i>by Dioide</i></p>
 
@@ -10,52 +10,48 @@
 [![release](https://img.shields.io/github/v/release/fatih-gh/aerium-browser-android)](https://github.com/fatih-gh/aerium-browser-android/releases/latest)
 [![license](https://img.shields.io/badge/License-GPLv2-blue.svg)](LICENSE)
 
-A privacy-hardened, extension-capable Chromium browser for Android, built on [Vanadium](https://github.com/GrapheneOS/Vanadium) (GrapheneOS), with a deep-navy space identity and a handful of defaults chosen for a saner out-of-the-box experience. arm64 only, built entirely on free GitHub Actions runners.
+Aerium is a browser for people who'd rather their browser stayed out of the way. Dark, deep-navy interface by default. No telemetry calling home, no ad platform baked into the settings page. Extensions — including Manifest V2 — install straight from the Chrome Web Store, something most Android browsers still can't do.
 
-[**Download the latest release**](https://github.com/fatih-gh/aerium-browser-android/releases/latest)
+[**Download for Android**](https://github.com/fatih-gh/aerium-browser-android/releases/latest)
 
-## What's different from stock Vanadium
+## What you get
 
-- **Extensions, including Manifest V2**, installable straight from the Chrome Web Store, plus Opera and Microsoft Edge add-on stores. Unpacked extensions can also be loaded manually via the Storage Access Framework picker.
-- **Space-navy theme by default** — dark UI, a radial deep-space gradient on the New Tab Page, and the Aerium roundel in place of the stock icon.
-- **Android platform autofill enabled by default**, so third-party password managers (Bitwarden and friends) fill web forms natively instead of falling back to unreliable accessibility-based autofill.
-- **Safe Browsing off by default** — the main recurring Google phone-home on Android — toggleable back on in Settings if you want it.
-- **Aerium branding throughout**: app name, package ID (`io.dioide.aerium`), icons, launcher tiles.
+- **Extensions that actually work.** Manifest V2 support and Chrome Web Store access, plus Opera and Microsoft Edge add-on stores. Load an unpacked extension manually if you need to.
+- **Your password manager, working properly.** Android's own autofill framework is on by default, so Bitwarden and similar apps fill forms natively instead of falling back to flaky accessibility tricks.
+- **A browser that looks like Aerium.** Deep-navy interface, its own icon, its own identity — not a reskinned default.
+- **Safe Browsing off by default.** It's the one Android feature that phones home to Google on every page you visit. Turn it back on in Settings if you want it.
 
-## Usage
+## Using extensions
 
-### Installing extensions
+Open the [Chrome Web Store](https://chromewebstore.google.com/), switch on **Desktop site** from the <kbd>⋮</kbd> menu, and install as normal. A few worth knowing about, all free and open-source:
 
-Open the [Chrome Web Store](https://chromewebstore.google.com/), switch on **Desktop site** from the <kbd>⋮</kbd> menu, and install as normal. Manifest V2 (MV2) extensions are supported — [uBlock Origin](https://chromewebstore.google.com/detail/ublock-origin/cjpalhdlnbpafiamejdnhcphjbkeiagm) and [floccus bookmarks sync](https://chromewebstore.google.com/detail/floccus-bookmarks-sync/fnaicdffflnofjppbagibeoednhnbjhg) are both good starting points.
+- [**uBlock Origin**](https://chromewebstore.google.com/detail/ublock-origin/cjpalhdlnbpafiamejdnhcphjbkeiagm) — content blocking that doesn't get in your way.
+- [**floccus**](https://chromewebstore.google.com/detail/floccus-bookmarks-sync/fnaicdffflnofjppbagibeoednhnbjhg) — bookmark sync across browsers, using storage you control.
+- [**Tabliss**](https://chromewebstore.google.com/detail/tabliss-a-beautiful-new-t/hipekcciheckooncpjeljhnekcoolahp) — a new tab page worth looking at twice.
 
-Opera and Microsoft Edge add-on stores work too. You can also load an unpacked extension by opening **Manage extensions** (`chrome://extensions`), enabling **Developer mode**, and choosing **Load unpacked** — pick the extension's folder in the file picker.
+Opera and Microsoft Edge add-on stores work too. To load an unpacked extension, open **Manage extensions** (`chrome://extensions`), enable **Developer mode**, and choose **Load unpacked**.
 
-### Using extensions
+Pin an extension's icon to the toolbar from the <kbd>⋮</kbd> menu next to it in the extensions list to reach its popup directly. To allow one in Incognito, go to **Manage extensions → Details** and enable **Allow in Incognito**.
 
-Pin an extension's icon to the toolbar from the <kbd>⋮</kbd> menu next to it in the extensions list to access its popup directly. To allow an extension in Incognito, go to **Manage extensions → Details** and enable **Allow in Incognito**.
+## Other things worth knowing
 
-### Debug and flags
+- `chrome://chrome-urls` lists every internal page; `chrome://flags` has the full set of experiments.
+- WebRTC IP handling lives under **Settings → Privacy and security**. If a voice service misbehaves because your IP is shielded by default, switch it to **Default public interface only** or **Default**.
 
-`chrome://chrome-urls` lists every internal page; `chrome://flags` has the full set of experiments, same as upstream Chromium.
+## Building
 
-### WebRTC IP handling
+Every push to `main` builds automatically on GitHub Actions, split across sequential jobs to fit a full compile inside the free tier's per-job time limit. Every finished build is published as a release.
 
-**Settings → Privacy and security → WebRTC IP handling policy**. If a WebRTC service (e.g. Discord voice) misbehaves because your IP is shielded by default, switch this to **Default public interface only** or **Default**.
-
-## Building it yourself
-
-Builds run entirely on free GitHub Actions (public repo, staged across resumable jobs to fit Chromium's compile time into the free-tier limits). To build your own signed APK:
+Want your own signed build?
 
 1. Fork this repository.
 2. Generate a signing keystore and add it as two base64-encoded repository secrets, `STORE_TEST_JKS` and `LOCAL_TEST_JKS` (see `common.sh` for the expected format).
-3. Go to **Actions → Build → Run workflow**.
+3. Run the `Build` workflow from the Actions tab.
 
-See [UPDATING.md](UPDATING.md) for the version-bump/maintenance playbook.
+## Contributing
 
-## Credits
+Issues and pull requests are welcome. See [UPDATING.md](UPDATING.md) for how the build stays in sync with upstream releases.
 
-Built on [Vanadium](https://github.com/GrapheneOS/Vanadium) by [GrapheneOS](https://github.com/GrapheneOS), and forked from [jqssun/android-helium-browser](https://github.com/jqssun/android-helium-browser), which pioneered extension support on Chromium for Android. Also indebted to [ungoogled-chromium](https://github.com/ungoogled-software/ungoogled-chromium) for the broader de-Googling approach this project draws on. All credit for the underlying engineering goes to those projects; Aerium is our own fork, theme, and set of default choices layered on top.
+## About
 
-## License
-
-[GPLv2](LICENSE), inherited from the upstream projects this is built on.
+Aerium is built on [Vanadium](https://github.com/GrapheneOS/Vanadium) by [GrapheneOS](https://github.com/GrapheneOS), with its own branding, theme, and defaults layered on top, and draws on [ungoogled-chromium](https://github.com/ungoogled-software/ungoogled-chromium) for its broader approach to privacy. Licensed under [GPLv2](LICENSE).
