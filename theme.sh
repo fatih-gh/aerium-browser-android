@@ -58,4 +58,40 @@ sed -i \
     -e 's/#C2E7FF/#C2E5FF/g' -e 's/#DFF3FF/#DFF1FF/g' \
     "$P"
 
+# --- Battery efficiency pass. Aerium takes its name from aerogel, the
+# world's lightest solid, so keeping the browser light on battery is a brand
+# commitment, not just an optimization. Each change below flips a single
+# feature/pref default; all remain user-changeable where a settings UI exists.
+# Verified against Chromium 150.0.7871.124 source at each file path below.
+
+# Disable network prediction/preloading (prefetching links, DNS, etc. on
+# page load) by default - trades a little latency for meaningfully less
+# background radio/network activity. User-changeable in
+# Settings -> Privacy and security -> Preload pages.
+sed -i 's/static_cast<int>(NetworkPredictionOptions::kDefault),/static_cast<int>(NetworkPredictionOptions::kDisabled),/' \
+    chrome/browser/preloading/preloading_prefs.cc
+
+# Disable Optimization Guide (hints fetching + on-device target prediction
+# model downloads/updates) - periodic background network chatter with no
+# user-facing toggle on Android.
+sed -i 's/BASE_FEATURE(kOptimizationHints, base::FEATURE_ENABLED_BY_DEFAULT);/BASE_FEATURE(kOptimizationHints, base::FEATURE_DISABLED_BY_DEFAULT);/; s/BASE_FEATURE(kOptimizationTargetPrediction, base::FEATURE_ENABLED_BY_DEFAULT);/BASE_FEATURE(kOptimizationTargetPrediction, base::FEATURE_DISABLED_BY_DEFAULT);/' \
+    components/optimization_guide/core/optimization_guide_features.cc
+
+# Disable Domain Reliability (periodic diagnostic beacons to Google about
+# request failures/latency on Google-owned domains).
+sed -i 's/registry->RegisterBooleanPref(prefs::kDomainReliabilityAllowedByPolicy, true);/registry->RegisterBooleanPref(prefs::kDomainReliabilityAllowedByPolicy, false);/' \
+    components/domain_reliability/domain_reliability_prefs.cc
+
+# Disable Interest Feed V2 (the Discover feed on the New Tab Page) - a
+# recurring background JobScheduler task that fetches articles even when
+# the feed isn't being looked at.
+sed -i 's/BASE_FEATURE(kInterestFeedV2, base::FEATURE_ENABLED_BY_DEFAULT);/BASE_FEATURE(kInterestFeedV2, base::FEATURE_DISABLED_BY_DEFAULT);/' \
+    components/feed/feed_feature_list.cc
+
+# Disable Safety Hub's background password-check job (a periodic
+# JobScheduler task, roughly weekly, that runs even without the Safety
+# Hub settings page ever being opened).
+sed -i 's/BASE_FEATURE(kSafetyHub, base::FEATURE_ENABLED_BY_DEFAULT);/BASE_FEATURE(kSafetyHub, base::FEATURE_DISABLED_BY_DEFAULT);/' \
+    components/safety_check/features.cc
+
 echo "[aerium] theme + rename pass applied"
