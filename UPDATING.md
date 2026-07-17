@@ -8,9 +8,10 @@ How to move Aerium onto a newer Chromium/Vanadium release when the
 - **Base**: `vanadium` submodule (GrapheneOS Vanadium) + upstream
   `jqssun/android-helium-browser` scripts. Chromium version is derived
   from `vanadium/args.gn`.
-- **Our changes**: `build.sh` (staged CI build), `theme.sh` (rename +
-  navy theme + platform autofill), `patch.sh` (extension/UX seds — kept
-  in sync with upstream), `res/` (Aerium icons), `args.gn`, the staged
+- **Our changes**: `build.sh` (staged CI build), `theme.sh` (rename,
+  privacy/battery-efficiency defaults, platform autofill — visual
+  theming is left stock), `patch.sh` (extension/UX seds — kept in sync
+  with upstream), `res/` (Aerium icons), `args.gn`, the staged
   workflow under `.github/`.
 
 ## Sync procedure
@@ -49,9 +50,7 @@ silently no-ops or `git am` (Vanadium patches) rejects.
   matches the Chromium version fixes it.
 - **Our `patch.sh` sed no-op** (compile error later, e.g. an expected
   symbol missing): grep the new Chromium source for the changed line and
-  update the sed's match text. `theme.sh`'s palette seds are the most
-  fragile across versions — verify the GM3 color names still exist in
-  `ui/android/java/res/values/color_palette.xml`.
+  update the sed's match text.
 
 ## Seeded incremental builds (planned)
 

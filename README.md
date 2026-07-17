@@ -10,7 +10,7 @@
 [![release](https://img.shields.io/github/v/release/fatih-gh/aerium-browser-android)](https://github.com/fatih-gh/aerium-browser-android/releases/latest)
 [![license](https://img.shields.io/badge/License-GPLv2-blue.svg)](LICENSE)
 
-Aerium is a browser for people who'd rather their browser stayed out of the way. Dark, deep-navy interface by default. No telemetry calling home, no ad platform baked into the settings page. Extensions — including Manifest V2 — install straight from the Chrome Web Store, something most Android browsers still can't do.
+Aerium is a browser for people who'd rather their browser stayed out of the way. No telemetry calling home, no ad platform baked into the settings page. Extensions — including Manifest V2 — install straight from the Chrome Web Store, something most Android browsers still can't do.
 
 [**Download for Android**](https://github.com/fatih-gh/aerium-browser-android/releases/latest)
 
@@ -18,7 +18,7 @@ Aerium is a browser for people who'd rather their browser stayed out of the way.
 
 - **Extensions that actually work.** Manifest V2 support and Chrome Web Store access, plus Opera and Microsoft Edge add-on stores. Load an unpacked extension manually if you need to.
 - **Your password manager, working properly.** Android's own autofill framework is on by default, so Bitwarden and similar apps fill forms natively instead of falling back to flaky accessibility tricks.
-- **A browser that looks like Aerium.** Deep-navy interface, its own icon, its own identity — not a reskinned default.
+- **Its own name, its own icon — your own colors.** Dynamic color from your wallpaper and the light/dark toggle work exactly like stock Android Chrome; nothing forces a palette on top of it.
 - **Safe Browsing off by default.** It's the one Android feature that phones home to Google on every page you visit. Turn it back on in Settings if you want it.
 - **Lighter by default.** Background network chatter — hint prefetching, the Discover feed's background refresh, domain reliability pings — is off out of the box. The name comes from aerogel, the lightest solid there is.
 - **HTTPS by default.** Balanced Mode upgrades navigations to HTTPS automatically, without the disruptive full-site warnings of strict HTTPS-only enforcement.
@@ -59,4 +59,4 @@ Issues and pull requests are welcome. See [UPDATING.md](UPDATING.md) for how the
 
 ## About
 
-Aerium is built on [Vanadium](https://github.com/GrapheneOS/Vanadium) by [GrapheneOS](https://github.com/GrapheneOS), with its own branding, theme, and defaults layered on top, and draws on [ungoogled-chromium](https://github.com/ungoogled-software/ungoogled-chromium) for its broader approach to privacy. Licensed under [GPLv2](LICENSE).
+Aerium is built on [Vanadium](https://github.com/GrapheneOS/Vanadium) by [GrapheneOS](https://github.com/GrapheneOS), with its own branding and defaults layered on top, and draws on [ungoogled-chromium](https://github.com/ungoogled-software/ungoogled-chromium) for its broader approach to privacy. Licensed under [GPLv2](LICENSE).
