@@ -73,4 +73,41 @@ sed -i 's/BASE_FEATURE(kSafetyHub, base::FEATURE_ENABLED_BY_DEFAULT);/BASE_FEATU
 sed -i 's/prefs::kHttpsFirstBalancedMode, false,/prefs::kHttpsFirstBalancedMode, true,/' \
     chrome/browser/ui/browser_ui_prefs.cc
 
+# --- Global Privacy Control (https://w3c.github.io/gpc/): a Sec-GPC opt-out
+# header plus a readable navigator.globalPrivacyControl JS property, neither
+# of which stock Chromium implements (Brave and DuckDuckGo do; CCPA requires
+# it from browsers serving California users starting 2027-01-01). Sent/
+# reported unconditionally - there's no per-site toggle, matching how DNT
+# (still present in Chromium, just hidden from the settings UI) already
+# behaves at these same call sites.
+sed -i 's|\[MeasureAs=NavigatorVendor\] readonly attribute DOMString vendor;|&\n    // https://w3c.github.io/gpc/#dom-navigator-globalprivacycontrol\n    readonly attribute boolean globalPrivacyControl;|' \
+    third_party/blink/renderer/core/frame/navigator.idl
+sed -i 's|String vendorSub() const;|&\n  bool globalPrivacyControl() const;|' \
+    third_party/blink/renderer/core/frame/navigator.h
+sed -i '/^String Navigator::vendorSub() const {$/,/^}$/{/^}$/a\
+\
+bool Navigator::globalPrivacyControl() const {\
+  // https://w3c.github.io/gpc/#dom-navigator-globalprivacycontrol\
+  return true;\
+}
+}' third_party/blink/renderer/core/frame/navigator.cc
+sed -i '/^  \/\/ TODO(crbug\.com\/40833603): WARNING: This bypasses the permissions policy\.$/i\
+  // Global Privacy Control opt-out signal (https://w3c.github.io/gpc/),\
+  // legally recognized under CCPA. Sent unconditionally, matching\
+  // Brave/DuckDuckGo'"'"'s default behavior - there'"'"'s no per-site toggle.\
+  if (should_update_existing_headers) {\
+    headers->RemoveHeader("Sec-GPC");\
+  }\
+  headers->SetHeaderIfMissing("Sec-GPC", "1");\
+' content/browser/loader/browser_initiated_resource_request.cc
+sed -i '/^  \/\/ The request.s extra data may indicate that we should set a custom user$/i\
+  // Global Privacy Control - see content\/browser\/loader\/\
+  \/\/ browser_initiated_resource_request.cc for the browser-initiated case.\
+  request.SetHttpHeaderField(blink::WebString::FromUtf8("Sec-GPC"), "1");
+' content/renderer/render_frame_impl.cc
+sed -i '/^  auto url_request_extra_data = base::MakeRefCounted<WebURLRequestExtraData>();$/i\
+  request.SetHttpHeaderField(WebString::FromUtf8("Sec-GPC"), "1");
+' third_party/blink/renderer/platform/loader/fetch/url_loader/dedicated_or_shared_worker_global_scope_context_impl.cc \
+  third_party/blink/renderer/modules/service_worker/web_service_worker_fetch_context_impl.cc
+
 echo "[aerium] theme + rename pass applied"
