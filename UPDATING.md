@@ -10,9 +10,9 @@ How to move Aerium onto a newer Chromium/Vanadium release when the
   from `vanadium/args.gn`.
 - **Our changes**: `build.sh` (staged CI build), `theme.sh` (rename,
   privacy/battery-efficiency defaults, platform autofill, search-engine
-  defaults — visual theming is left stock), `patch.sh` (extension/UX
-  seds — kept in sync with upstream), `res/` (Aerium icons), `args.gn`,
-  the staged workflow under `.github/`.
+  defaults, fingerprint-protection parity — visual theming is left
+  stock), `patch.sh` (extension/UX seds — kept in sync with upstream),
+  `res/` (Aerium icons), `args.gn`, the staged workflow under `.github/`.
 
 ## Sync procedure
 
@@ -61,6 +61,23 @@ silently no-ops or `git am` (Vanadium patches) rejects.
   still works. Our engine IDs start at 1001 so upstream additions can
   never collide; if upstream raises `kCurrentDataVersion` past 250,
   raise ours above it again.
+- **Fingerprint-protection block in `theme.sh`**: touches
+  `runtime_enabled_features.json5` (new `status: "stable"` entries -
+  no flag or command-line switch needed, unlike Windows's
+  ungoogled-chromium/bromite flags which need `components/ungoogled`,
+  absent on Vanadium) plus `document.cc/.h`, `element.cc`, `range.cc`,
+  `text_metrics.cc/.h`, `base_rendering_context_2d.cc` (two call
+  sites - measureText and getImageData), `static_bitmap_image.cc/.h`,
+  `image_encoder.cc`, `platform/BUILD.gn` (one `include_dirs` entry for
+  `third_party/skia/include/private`), and `blink/common/features.cc`/
+  `public/common/features.h` (new `kSpoofWebGLInfo` BASE_FEATURE,
+  self-contained - no `components/ungoogled` dep needed since there's
+  no command-line delivery, just a compile-time default). If a sed
+  no-ops, the anchor line moved; re-derive it from the *pristine*
+  Chromium source at the new tag (not from Windows's patches, which are
+  diffed against a different intermediate state) - `git diff` against a
+  fresh checkout of the new tag's `third_party/blink/...` files is the
+  fastest way to spot what shifted.
 
 ## Seeded incremental builds (planned)
 
