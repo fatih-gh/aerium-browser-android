@@ -8,6 +8,10 @@ inputs:
     description: '"auto" to resume from a saved build tree when one exists, "never" to force a fresh start'
     required: false
     default: 'auto'
+  restore_run_id:
+    description: 'Workflow run id to restore the saved build tree from (empty = this run). download-artifact only sees the current run by default, so resuming a failed run from a NEW run requires passing that run''s id here.'
+    required: false
+    default: ''
 outputs:
   finished:
     description: 'true once the signed APK has been produced'
@@ -38,12 +42,22 @@ runs:
         build-mount-path: '${{ github.workspace }}/chromium'
 
     - name: Restore build tree (best effort)
-      if: inputs.finished != 'true' && inputs.from_artifact != 'never'
-      uses: actions/download-artifact@v4
+      if: inputs.finished != 'true' && inputs.from_artifact != 'never' && inputs.restore_run_id == ''
+      uses: actions/download-artifact@v8
       continue-on-error: true
       with:
         name: build-artifact-android
         path: ${{ github.workspace }}/chromium
+
+    - name: Restore build tree from another run (best effort)
+      if: inputs.finished != 'true' && inputs.from_artifact != 'never' && inputs.restore_run_id != ''
+      uses: actions/download-artifact@v8
+      continue-on-error: true
+      with:
+        name: build-artifact-android
+        path: ${{ github.workspace }}/chromium
+        run-id: ${{ inputs.restore_run_id }}
+        github-token: ${{ github.token }}
 
     - name: Unpack build tree
       if: inputs.finished != 'true'
@@ -125,7 +139,7 @@ runs:
 
     - name: Upload build tree
       if: inputs.finished != 'true' && steps.pack.outputs.packed == 'intermediate'
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: build-artifact-android
         path: ${{ github.workspace }}/chromium/artifacts.tar.zst
@@ -135,7 +149,7 @@ runs:
 
     - name: Upload final APK
       if: inputs.finished != 'true' && steps.pack.outputs.packed == 'finished'
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: aerium-android
         path: ${{ github.workspace }}/release/

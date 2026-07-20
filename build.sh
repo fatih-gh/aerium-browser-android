@@ -137,6 +137,24 @@ fi
 
 cd chromium/src
 
+# --- Resume hotfix (removable once a build that STARTED after 2026-07-20
+# goes green): theme.sh only runs during source setup, so a tree saved by an
+# earlier stage never re-runs it. Trees saved before the unsafe-buffers
+# pragma landed in theme.sh fail compiling static_bitmap_image.cc under
+# -Werror,-Wunsafe-buffer-usage; patch them in place on resume. Idempotent:
+# no-ops on fresh trees (theme.sh already added the pragma) and on already
+# patched resumed trees.
+SBI=third_party/blink/renderer/platform/graphics/static_bitmap_image.cc
+if [ -f "$SBI" ] && grep -q ShuffleSubchannelColorData "$SBI" && ! grep -q allow_unsafe_buffers "$SBI"; then
+    sed -i '/^#include "third_party\/blink\/renderer\/platform\/graphics\/static_bitmap_image.h"$/i\
+#ifdef UNSAFE_BUFFERS_BUILD\
+// The Bromite canvas shuffler below does raw per-pixel pointer arithmetic.\
+#pragma allow_unsafe_buffers\
+#endif\
+' "$SBI"
+    echo "[aerium] resume hotfix: allow_unsafe_buffers pragma applied to $SBI"
+fi
+
 # compile prerequisites must exist on every fresh runner
 ./build/install-build-deps.sh --no-prompt || true
 

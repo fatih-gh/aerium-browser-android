@@ -339,6 +339,18 @@ sed -i 's/^  include_dirs = \[\]$/  include_dirs = [\
     "\/\/third_party\/skia\/include\/private", # For shuffler in graphics\/static_bitmap_image.cc\
   ]/' \
     third_party/blink/renderer/platform/BUILD.gn
+# The shuffler's per-pixel writes are raw pointer arithmetic, which Chromium
+# 150's unsafe-buffers plugin rejects as -Werror under Vanadium's
+# warnings-as-errors build (ungoogled-chromium-windows compiles the identical
+# upstream bromite code only because it sets treat_warnings_as_errors=false).
+# File-level opt-out is the mechanism docs/unsafe_buffers.md prescribes.
+sed -i '/^#include "third_party\/blink\/renderer\/platform\/graphics\/static_bitmap_image.h"$/i\
+#ifdef UNSAFE_BUFFERS_BUILD\
+// The Bromite canvas shuffler below does raw per-pixel pointer arithmetic.\
+#pragma allow_unsafe_buffers\
+#endif\
+' \
+    third_party/blink/renderer/platform/graphics/static_bitmap_image.cc
 sed -i '/^#include "base\/numerics\/checked_math.h"$/i\
 #include "base/rand_util.h"\
 #include "base/logging.h"' \

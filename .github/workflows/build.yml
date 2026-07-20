@@ -14,6 +14,11 @@ on:
         type: boolean
         required: false
         default: false
+      resume_run_id:
+        description: 'Resume from the build tree saved by this workflow run id (artifacts are per-run; a new run cannot see an old run''s tree without this)'
+        type: string
+        required: false
+        default: ''
 
 permissions:
   contents: write
@@ -38,6 +43,7 @@ jobs:
         with:
           finished: 'false'
           from_artifact: ${{ inputs.fresh == true && 'never' || 'auto' }}
+          restore_run_id: ${{ inputs.resume_run_id || '' }}
         env:
           LOCAL_TEST_JKS: ${{ secrets.LOCAL_TEST_JKS }}
           STORE_TEST_JKS: ${{ secrets.STORE_TEST_JKS }}
@@ -352,7 +358,7 @@ jobs:
       - name: Verify build finished
         run: echo "Build finished - publishing the Aerium APK."
       - name: Download APK artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: aerium-android
           path: release
