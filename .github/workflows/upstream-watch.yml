@@ -1,8 +1,17 @@
 name: Upstream watch
 
 # Checks weekly whether the upstream project (and thus the Chromium base)
-# has a newer release than what Aerium is currently built on, and opens a
-# tracking issue when it does. Purely informational; never builds.
+# has a newer release than what Aerium is currently built on. Purely
+# informational; never builds.
+#
+# Notification mechanism: this repo has Issues disabled, so we can't open a
+# tracking issue (gh issue create/list just errors out - that's how this
+# silently broke for weeks before 2026-07-20). Instead: fail the step so the
+# run itself shows red in the Actions tab, and write the details to the job
+# summary. Stays red every week (the .upstream-seen guard below is
+# intentionally NOT auto-updated here) until a human does the actual sync
+# and updates .github/.upstream-seen as the last step of that, per
+# UPDATING.md.
 
 on:
   schedule:
@@ -11,13 +20,14 @@ on:
 
 permissions:
   contents: read
-  issues: write
 
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+        with:
+          submodules: true
 
       - name: Compare upstream vs current
         env:
@@ -38,17 +48,23 @@ jobs:
           seen="$(cat "$seen_file" 2>/dev/null || echo none)"
           if [ "$upstream_sha" = "$seen" ]; then
             echo "Already reported $upstream_sha; nothing to do."
+            echo "### Upstream watch: up to date ($upstream_sha)" >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
 
-          title="Upstream update available: $upstream_tag ($upstream_sha)"
-          existing="$(gh issue list --state open --search "in:title Upstream update available" --json number --jq '.[0].number' || true)"
-          body="$(printf 'Upstream **%s** has moved.\n\n- Latest tag: \`%s\`\n- Latest commit: \`%s\` — %s\n- Aerium base: \`%s\`\n\nSync steps are in [UPDATING.md](../blob/main/UPDATING.md). Remember: upstream force-pushes, so cherry-pick patch.sh changes rather than merging.' "$UPSTREAM" "$upstream_tag" "$upstream_sha" "$upstream_msg" "$current")"
+          {
+            echo "### ⚠️ Upstream update available: $upstream_tag ($upstream_sha)"
+            echo ""
+            echo "Upstream **$UPSTREAM** has moved."
+            echo ""
+            echo "- Latest tag: \`$upstream_tag\`"
+            echo "- Latest commit: \`$upstream_sha\` — $upstream_msg"
+            echo "- Aerium base: \`$current\`"
+            echo ""
+            echo "Sync steps are in [UPDATING.md](../blob/main/UPDATING.md). Remember: upstream force-pushes, so cherry-pick patch.sh changes rather than merging."
+            echo ""
+            echo "This job will keep failing on every scheduled run until \`.github/.upstream-seen\` is updated to \`$upstream_sha\` (the last step of the sync in UPDATING.md)."
+          } >> "$GITHUB_STEP_SUMMARY"
 
-          if [ -n "${existing:-}" ] && [ "$existing" != "null" ]; then
-            gh issue edit "$existing" --title "$title" --body "$body"
-            echo "Updated issue #$existing"
-          else
-            gh issue create --title "$title" --body "$body" --label upstream || \
-            gh issue create --title "$title" --body "$body"
-          fi
+          echo "::error::Upstream update available: $upstream_tag ($upstream_sha) - see job summary"
+          exit 1

@@ -1,7 +1,9 @@
 # Updating Aerium (Android)
 
 How to move Aerium onto a newer Chromium/Vanadium release when the
-**Upstream watch** workflow opens a tracking issue.
+**Upstream watch** workflow's weekly run goes red (this repo has Issues
+disabled, so it reports via a failed run + job summary, not a tracking
+issue - see the workflow file for why).
 
 ## Where things live
 
@@ -36,8 +38,10 @@ How to move Aerium onto a newer Chromium/Vanadium release when the
 6. Commit, then dispatch **Build** with `fresh: true` (the saved tree is
    for the old version and must be discarded).
 7. When green, the `publish-release` job tags `v<version>` automatically.
-8. Update `.github/.upstream-seen` if you want to silence the watcher for
-   that commit (the workflow also updates it via its issue flow).
+8. Update `.github/.upstream-seen` to the commit SHA reported in the
+   watcher's job summary - the workflow keeps failing every Monday on
+   that same commit until this file is updated, it does not clear
+   itself.
 
 ## When a patch fails to apply
 
