@@ -4,7 +4,7 @@ Aerium is maintained by a small, independent team on top of [Vanadium](https://g
 
 ## Reporting a vulnerability
 
-If you find a security issue in code specific to Aerium — the changes in `theme.sh`/`patch.sh`, the signing/build pipeline, or the branding pass — please don't open a public issue. Instead, use [GitHub Security Advisories](https://github.com/fatih-gh/aerium-browser-android/security/advisories/new) for this repo.
+If you find a security issue in code specific to Aerium — the changes in `theme.sh`/`patch.sh`, the signing/build pipeline, or the branding pass — please don't open a public issue. Instead, use [GitHub Security Advisories](https://github.com/aerium-browser/aerium-browser-android/security/advisories/new) for this repo.
 
 Include the affected version, a description of the issue, and reproduction steps if you have them. This is maintained in spare time, so please allow a reasonable window for a response.
 

@@ -6,13 +6,13 @@
 
 <p align="center"><i>by Dioide</i></p>
 
-[![build](https://img.shields.io/github/actions/workflow/status/fatih-gh/aerium-browser-android/build.yml?label=build)](https://github.com/fatih-gh/aerium-browser-android/actions/workflows/build.yml)
-[![release](https://img.shields.io/github/v/release/fatih-gh/aerium-browser-android)](https://github.com/fatih-gh/aerium-browser-android/releases/latest)
+[![build](https://img.shields.io/github/actions/workflow/status/aerium-browser/aerium-browser-android/build.yml?label=build)](https://github.com/aerium-browser/aerium-browser-android/actions/workflows/build.yml)
+[![release](https://img.shields.io/github/v/release/aerium-browser/aerium-browser-android)](https://github.com/aerium-browser/aerium-browser-android/releases/latest)
 [![license](https://img.shields.io/badge/License-GPLv2-blue.svg)](LICENSE)
 
 Aerium is a browser for people who'd rather their browser stayed out of the way. No telemetry calling home, no ad platform baked into the settings page. Extensions — including Manifest V2 — install straight from the Chrome Web Store, something most Android browsers still can't do.
 
-[**Download for Android**](https://github.com/fatih-gh/aerium-browser-android/releases/latest)
+[**Download for Android**](https://github.com/aerium-browser/aerium-browser-android/releases/latest)
 
 ## What you get
 
