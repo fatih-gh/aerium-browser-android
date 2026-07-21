@@ -47,6 +47,24 @@ Pin an extension's icon to the toolbar from the <kbd>⋮</kbd> menu next to it i
 - `chrome://chrome-urls` lists every internal page; `chrome://flags` has the full set of experiments.
 - WebRTC IP handling lives under **Settings → Privacy and security**. If a voice service misbehaves because your IP is shielded by default, switch it to **Default public interface only** or **Default**.
 
+## More privacy flags to consider
+
+These aren't on by default — each is a deliberate tradeoff, so Aerium leaves them for you to opt into individually at `chrome://flags`:
+
+- `chrome://flags/#disable-search-engine-collection` — stop Chromium from scraping search engines it notices on visited pages.
+- `chrome://flags/#enable-parallel-downloading` — split downloads into multiple simultaneous requests for faster large files.
+- `chrome://flags/#fingerprinting-canvas-image-data-noise` — slightly perturb Canvas image-data readback to resist fingerprinting.
+- `chrome://flags/#fingerprinting-canvas-measuretext-noise` — add tiny random noise to Canvas measureText() output.
+- `chrome://flags/#fingerprinting-client-rects-noise` — add tiny random noise to getClientRects()/getBoundingClientRect().
+- `chrome://flags/#force-punycode-hostnames` — always show internationalized domain names as punycode, closing a homograph-spoofing vector.
+- `chrome://flags/#increase-incognito-storage-quota` — raise the storage quota for Incognito and Guest profiles.
+- `chrome://flags/#popups-to-tabs` — open popup windows as new tabs instead.
+- `chrome://flags/#reduced-system-info` — reduce system info exposed via headers/JS, and report two CPU cores regardless of the real count.
+- `chrome://flags/#remove-client-hints` — strip Client Hints headers (detailed system info sent to servers).
+- `chrome://flags/#remove-tabsearch-button` — remove the tab-search button from the tab strip.
+- `chrome://flags/#show-avatar-button` — control when the profile avatar button appears (always, only in Incognito/Guest, or never).
+- `chrome://flags/#spoof-webgl-info` — return generic WebGL renderer/vendor strings instead of your real GPU info.
+
 ## Building
 
 Every push to `main` builds automatically on GitHub Actions, split across sequential jobs to fit a full compile inside the free tier's per-job time limit. Every finished build is published as a release.

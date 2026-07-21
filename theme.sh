@@ -134,6 +134,93 @@ sed -i '/^  AddWidevine(cdms);$/c\
     AddWidevine(cdms);\
   }' chrome/common/media/cdm_registration.cc
 
+# --- extension-mime-request-handling flag: controls how CRX/User Script
+# MIME-type downloads are handled (silently treat as a regular file, or
+# always prompt before installing). This flag doesn't exist on Vanadium at
+# all - it's added by ungoogled-chromium's own
+# add-flag-to-configure-extension-downloading.patch, which Windows/Linux get
+# for free via their shared ungoogled-chromium core, but Vanadium carries no
+# ungoogled-chromium patches. Ported here in full (flag definition + the
+# behavior it gates) rather than skipped, for parity across all three
+# platforms. Verified against Chromium 150.0.7871.124 source.
+#
+# Choice array + flag entry go straight into about_flags.cc's
+# kFeatureEntries, same as the enable-widevine flag above - no separate
+# ungoogled_flag_choices.h/ungoogled_flag_entries.h indirection needed since
+# Vanadium isn't ungoogled-chromium-based.
+sed -i '/^const FeatureEntry kFeatureEntries\[\] = {$/i\
+const FeatureEntry::Choice kExtensionHandlingChoices[] = {\
+    {flags_ui::kGenericExperimentChoiceDefault, "", ""},\
+    {"Download as regular file",\
+     "extension-mime-request-handling",\
+     "download-as-regular-file"},\
+    {"Always prompt for install",\
+     "extension-mime-request-handling",\
+     "always-prompt-for-install"},\
+};\
+' chrome/browser/about_flags.cc
+sed -i '/^const FeatureEntry kFeatureEntries\[\] = {$/a\
+    {"extension-mime-request-handling",\
+     "Handling of extension MIME type requests",\
+     "Used when deciding how to handle a request for a CRX or User Script MIME type. Aerium flag, ported from ungoogled-chromium.",\
+     kOsAll, MULTI_VALUE_TYPE(kExtensionHandlingChoices)},\
+' chrome/browser/about_flags.cc
+
+# The behavior the flag gates: skip the install-confirmation prompt for
+# trusted-site extension downloads unless "always prompt for install" is
+# selected, and treat CRX/user-script downloads as regular files when
+# "download as regular file" is selected.
+sed -i '/^#include "extensions\/buildflags\/buildflags.h"$/i\
+#include "extensions/browser/extension_util.h"' \
+    chrome/browser/download/download_target_determiner.cc
+sed -i '/^  \/\/ Don.t prompt for extension downloads if the installation site is allow$/,/^    return DownloadConfirmationReason::NONE;$/c\
+  if (!extensions::util::ShouldDownloadAsRegularFile()) {\
+    // Don'"'"'t prompt for extension downloads.\
+    if (download_crx_util::IsTrustedExtensionDownload(GetProfile(), *download_) ||\
+        filename.MatchesExtension(extensions::kExtensionFileExtension))\
+      return DownloadConfirmationReason::NONE;\
+  }' chrome/browser/download/download_target_determiner.cc
+sed -i '/^bool ExtensionManagement::IsOffstoreInstallAllowed($/,/^    const GURL\& referrer_url) const {$/{/^    const GURL\& referrer_url) const {$/a\
+  const base::CommandLine\& command_line =\
+      *base::CommandLine::ForCurrentProcess();\
+  if (command_line.HasSwitch("extension-mime-request-handling") \&\&\
+      command_line.GetSwitchValueASCII("extension-mime-request-handling") ==\
+      "always-prompt-for-install") {\
+    return true;\
+  }
+}' chrome/browser/extensions/extension_management.cc
+sed -i '/^bool IsExtensionDownload(const download::DownloadItem\& download_item) {$/i\
+bool ShouldDownloadAsRegularFile() {\
+    const base::CommandLine\& command_line =\
+        *base::CommandLine::ForCurrentProcess();\
+    return command_line.HasSwitch("extension-mime-request-handling") \&\&\
+        command_line.GetSwitchValueASCII("extension-mime-request-handling") ==\
+        "download-as-regular-file";\
+}\
+' extensions/browser/extension_util.cc
+sed -i '/^                                  download_item.GetMimeType())) {$/{n
+s/^    return true;$/    return !ShouldDownloadAsRegularFile();/
+}' extensions/browser/extension_util.cc
+sed -i '/^\/\/ Returns true if this is an extension download\. This also considers user$/i\
+// Returns true if the user wants all extensions to be downloaded as regular\
+// files.\
+bool ShouldDownloadAsRegularFile();\
+' extensions/browser/extension_util.h
+
+# Seed the flag on by default at "Always prompt for install" (@2) - a
+# security backstop, not an opt-in feature the way the rest of Aerium's
+# privacy flags are treated, so it stays the one silently-seeded default.
+# Matches Windows/Linux's default-flags.patch exactly (same shared file).
+sed -i 's/^  registry->RegisterListPref(prefs::kAboutFlagsEntries);$/  \/\/ Silently seed just this one flag by default (security backstop - don'"'"'t\
+  \/\/ silently download-and-run a CRX\/user-script MIME type without asking\
+  \/\/ first). Aerium'"'"'s other recommended privacy flags are listed as opt-in\
+  \/\/ choices instead, so picking them is a visible decision.\
+  base::ListValue default_flags;\
+  default_flags.Append("extension-mime-request-handling@2");\
+  registry->RegisterListPref(prefs::kAboutFlagsEntries,\
+                             std::move(default_flags));/' \
+    components/webui/flags/pref_service_flags_storage.cc
+
 # --- Default search engines: replace every per-country engine list with one
 # fixed privacy-focused set - Startpage (default), DuckDuckGo, DuckDuckGo
 # Lite, DuckDuckGo HTML and SearXNG (searx.be instance). Stock keeps
