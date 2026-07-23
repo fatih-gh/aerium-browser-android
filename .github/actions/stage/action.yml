@@ -109,9 +109,15 @@ runs:
         cd "$GITHUB_WORKSPACE"
         if [ -f release/finished.marker ]; then
           echo "packed=finished" >> "$GITHUB_OUTPUT"
-        elif [ -f chromium/src/BUILD.gn ] && [ -f chromium/src/out/Default/args.gn ]; then
+        elif [ -f chromium/src/BUILD.gn ] && [ -f chromium/src/out/Default/args.gn ] && [ -f chromium/src/out/Default/build.ninja ]; then
           # Save progress even when this stage's build failed, so a fixed
-          # workflow can resume instead of starting over.
+          # workflow can resume instead of starting over. build.ninja is
+          # required on top of BUILD.gn/args.gn: a tree where gn gen itself
+          # failed (e.g. a bad args.gn flag - run 29985315083) has the first
+          # two but no build graph, and uploading it would overwrite the
+          # previous GOOD checkpoint (the artifact name is shared across
+          # runs with overwrite: true), destroying resumable progress in
+          # exchange for a tree that can't be resumed anyway.
           EXTRA=""
           for f in chromium/.gclient_entries chromium/.gclient_previous_sync_commits; do
             [ -f "$f" ] && EXTRA="$EXTRA $f"
